@@ -109,7 +109,7 @@ func RunScale(nodeId int, funcName string, paramsMap map[string]string, mpcPorts
 	}
 
 	// start SCALE node that will prepare itself for future computation
-	cmdStr := "./Player.x " + strconv.Itoa(nodeId) + " -dOT -pns " + mpcPorts + " Programs/MPCTest/node" + strconv.Itoa(nodeId)
+	cmdStr := "./Player.x " + strconv.Itoa(nodeId) + " -dOT -pns " + mpcPorts + " Programs/MPCService/node" + strconv.Itoa(nodeId)
 
 	cmd := exec.Command("bash", "-c", cmdStr)
 	cmd.Dir = sm
