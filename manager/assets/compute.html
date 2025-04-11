@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>MPC service</title>
+  <link rel="stylesheet" href="./style/index.css">
+</head>
+
+<!-- Code for wasm -->
+
+<script src="wasm_exec.js"></script>
+<script type="text/javascript" src="load_wasm.js"></script>
+
+<!-- Load custom js functions -->
+
+<script type="text/javascript" src="dataset_utils.js"></script>
+
+<div class="sidenav">
+    <h3 style="width:100%; text-align:center; font-weight: bold; font-size: 28px; color: grey;">隐私数据共享系统</h3>
+    <button id="new-computation" style="border-radius: 10px;">发起计算</button>
+    <button id="history-info" style="border-radius: 10px;">历史计算</button>
+    <script>
+      var historyInfoButton = document.getElementById('history-info');
+    historyInfoButton.addEventListener('click', () => {
+      location.assign('history.html');
+    });
+  </script>
+    <button id="node-info" style="border-radius: 10px;">节点信息</button>
+    <script>
+      var nodeInfoButton = document.getElementById('node-info');
+    nodeInfoButton.addEventListener('click', () => {
+      location.assign('nodes.html');
+    });
+    </script>
+    <button id="dataset-info" style="border-radius: 10px;">数据集信息</button>
+    <script>
+      var datasetInfoButton = document.getElementById('dataset-info');
+    datasetInfoButton.addEventListener('click', () => {
+      location.assign('datasets.html');
+    });
+    </script>
+  </div>
+
+  <body>
+    <div style="text-align: center; margin-top: 50px; transform: translateX(100px);">
+    <span id="KeyGeneration" style="margin-right: 200px; font-size: 20px;">1.公私钥生成</span>
+    <span style="margin-right: 200px; font-size: 20px;">2.参数设置</span>
+    <span style="font-size: 20px;">3.结果查看</span>
+    </div>
+    <div style="display:flex; align-items:center; margin-top:200px;">
+    <span style="font-size: 20px; margin-right: 20px; transform: translateX(700px);">公钥</span>
+    <span style="font-size: 20px; margin-right: 5px;">:</span>
+    <span id="public-key" style="font-size: 16px; margin-left: 5px; transform: translateX(700px);">暂未生成</span>
+    </div>
+    <div style="display:flex; align-items:center; margin-top:10px;">
+    <span style="font-size: 20px; margin-right: 20px; transform: translateX(700px);">私钥</span>
+    <span style="font-size: 20px; margin-right: 5px;">:</span>
+    <span id="private-key" style="font-size: 16px; margin-left: 5px; transform: translateX(700px);">暂未生成</span>
+    </div>
+    <div style="text-align: center; margin-top: 50px;transform: translateX(125px);">
+    <button id="generate-keys" style="background-color: blue; color: white; border-radius: 10px; padding: 10px 20px; font-size: 16px;">生成公私钥</button>
+    </div>
+    <div style="text-align: center; margin-top: 50px;transform: translateX(125px);">
+      <button id="next-button" style="display:none; background-color: blue; color: white; border-radius: 10px; padding: 10px 20px; font-size: 16px;" >下一步</button>
+      </div>
+    <script>
+      const publicKeySpan = document.querySelector("#public-key");
+      const privateKeySpan = document.querySelector("#private-key");
+      const generateKeysButton = document.querySelector("#generate-keys");
+      const nextButton = document.querySelector("#next-button");
+  
+      generateKeysButton.addEventListener("click", () => {
+          // Generate random 128-bit hexadecimal strings using BigInt
+          const publicKey = (BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) << BigInt(64)) + BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)).toString(16).padStart(16, "0");
+          const privateKey = (BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) << BigInt(64)) + BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)).toString(16).padStart(16, "0");
+  
+          // Update the UI with the generated keys
+          publicKeySpan.textContent = publicKey.toString(16);
+          privateKeySpan.textContent = privateKey.toString(16);
+          nextButton.style.display = "inline-block";
+      });
+      nextButton.addEventListener('click', () => {
+      location.assign('compute2.html');})
+  </script>
+  
+    </body>
+
+
+
+  
+  <style type="text/css">
+  .sidenav {
+    height: 100%;
+    width: 300px; /* 增加宽度 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #f1f1f1;
+    overflow-x: hidden;
+    padding-top: 20px;
+  }
+  
+  .sidenav button {
+    display: block;
+    font-size: 16px;
+    border: none;
+    background-color: inherit;
+    color: black;
+    padding: 12px 16px;
+    margin: 10px auto; /* 设置左右 margin 为 auto 实现居中 */
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    width: 50%; /* 让按钮宽度为容器宽度的一半 */
+  }
+  
+  /* 当按钮被 hover 时改变背景色 */
+  .sidenav button:hover {
+    background-color: blue; /* 改变背景色为蓝色 */
+    color: white; /* 同时改变字体颜色为白色以突出显示 */
+  }
+  .sidenav #new-computation {
+  background-color: blue;
+  color: white;
+}
+#KeyGeneration {
+  background-color: blue;
+  color: white;
+  border-radius: 10px;
+  padding: 10px;
+  display: inline-block;
+}
+  </style>

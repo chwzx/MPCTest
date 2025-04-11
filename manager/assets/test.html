@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>MPC service</title>
+  <link rel="stylesheet" href="./style/index.css">
+</head>
+
+<!-- Code for wasm -->
+
+<script src="wasm_exec.js"></script>
+<script type="text/javascript" src="load_wasm.js"></script>
+
+<!-- Load custom js functions -->
+<script type="text/javascript" src="mpc_utils.js"></script>
+<script type="text/javascript" src="dataset_utils.js"></script>
+
+<div style="text-align: center; margin-top: 50px; transform: translateX(100px);">
+    <span style="margin-right: 200px; font-size: 20px;">1.公私钥生成</span>
+    <span id="figure" style="margin-right: 200px; font-size: 20px;">2.参数设置</span>
+    <script>
+        var Span = document.getElementById("figure");
+Span.style.backgroundColor = "blue";
+Span.style.color = "white";
+Span.style.borderRadius = "10px";
+Span.style.padding = "10px";
+Span.style.display = "inline-block";
+    </script>
+    <span id="result" style="font-size: 20px;">3.结果查看</span>
+  </div>
+  
+  <style>
+    .select1 {
+        font-size: 20px;
+        padding: 10px;
+        width: 200px;
+    }
+    </style>
+    
+    <div style="text-align: center; margin-top: 50px;">
+        <span style="font-size: 20px;">数据集：</span>
+        <select class= select1 name="dataset" onchange="if(this.value==''){this.style.color='#b5b5b5'}else{this.style.color='#000000'}">
+            <option value="" selected disabled hidden>请选择</option>
+            <option value="dataset_test1">dataset_test1</option>
+            <option value="dataset_test2">dataset_test2</option>
+            <option value="dataset_test3">dataset_test3</option>
+        </select>
+    </div>
+
+    <style>
+        .select2 {
+            font-size: 20px;
+            padding: 10px;
+            width: 200px;
+        }
+        </style>
+        
+        <div style="text-align: center; margin-top: 50px;">
+            <span style="font-size: 20px;">计算程序：</span>
+            <select class=select2 name="program" 
+            >
+                <option value="" selected disabled hidden>请选择</option>
+                <option value="Average">Average</option>
+                <option value="AbsoluteDeviation">AbsoluteDeviation</option>
+                <option value="Minimum">Minimum</option>
+                <option value="Quartile">Quartile</option>
+                <option value="Medium">Medium</option>
+                <option value="UpperQuartile">UpperQuartile</option>
+                <option value="Maximum">Maximum</option>
+                <option value="K">K-means</option>
+                <option value="Variance">Variance</option>
+                <option value="StandardDeviation">StandardDeviation</option>
+                <option value="Sknewmess">Sknewmess</option>
+                <option value="Kurtosis">Kurtosis</option>
+                
+            </select>
+        </div>
+
+
+          
+        <style>
+            .select3 {
+                font-size: 20px;
+                padding: 10px;
+                width: 500px; /* 修改这里的宽度 */
+            }
+        </style>
+        
+        <div style="text-align: center; margin-top: 50px;">
+            <span style="font-size: 20px;">节点：</span>
+            <select class="select3" name="nodesxxx" onchange="if(this.value==''){this.style.color='#b5b5b5'}else{this.style.color='#000000'}">
+                <option value="" selected disabled hidden>请选择</option>
+                <option value="Berlin_node">Berlin_node</option>
+                <option value="Paris_node">Paris_node</option>
+                <option value="Ljubljana_node">Ljubljana_node</option>
+            </select>
+        </div>
+        
+              
+            <script>
+                var selectedOptions = [];
+                
+                document.querySelector('select[name="nodesxxx"]').addEventListener('change', function(event) {
+                  var selectedOption = event.target.value;
+                  if (selectedOption !== '') {
+                    selectedOptions.push(selectedOption);
+                    document.querySelector('select[name="nodesxxx"] option[value="' + selectedOption +'"]').disabled = true;
+                    document.querySelector('select[name="nodesxxx"]').value = '';
+                    updateSelectedOptions();
+                  }
+                });
+                
+                function updateSelectedOptions() {
+                  var selectedOptionsText = selectedOptions.join('; ');
+                  document.querySelector('select[name="nodesxxx"] option:first-of-type').textContent = selectedOptionsText || '请选择';
+                }
+                </script>
+
+        
+        
+<style>
+    .select4 {
+        font-size: 20px;
+        padding: 10px;
+        width: 1000px; /* 修改这里的宽度 */
+    }
+</style>
+
+
+
+      
+<div style="text-align: center; margin-top: 50px;">
+    <span style="font-size: 20px;">数据列：</span>
+    <select class="select4" name="cols">
+        <option value="" selected disabled hidden>请选择</option>
+    </select>
+</div>
+
+<script>
+var cols = document.querySelector('select[name="cols"]');
+document.querySelector('select[name="dataset"]').addEventListener('change', function() {
+    cols.innerHTML = '<option value="" selected disabled hidden>请选择</option>';
+    if (this.value === 'dataset_test1') {
+        var option = document.createElement('option');
+        option.text ="diagnosis";
+        option.value = "diagnosis";
+        cols.add(option);
+        var option = document.createElement('option');
+option.text ="radius_mean";
+option.value = "radius_mean";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="texture_mean";
+option.value = "texture_mean";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="perimeter_mean";
+option.value = "perimeter_mean";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="area_mean";
+option.value = "area_mean";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="smoothness_mean";
+option.value = "smoothness_mean";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="compactness_mean";
+option.value = "compactness_mean";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="concavity_mean";
+option.value = "concavity_mean";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="concave_points_mean";
+option.value = "concave_points_mean";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="symmetry_mean";
+option.value = "symmetry_mean";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="fractal_dimension_mean";
+option.value = "fractal_dimension_mean";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="radius_se";
+option.value = "radius_se";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="texture_se";
+option.value = "texture_se";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="perimeter_se";
+option.value = "perimeter_se";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="area_se";
+option.value = "area_se";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="smoothness_se";
+option.value = "smoothness_se";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="compactness_se";
+option.value = "compactness_se";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="concavity_se";
+option.value = "concavity_se";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="concave_points_se";
+option.value = "concave_points_se";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="symmetry_se";
+option.value = "symmetry_se";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="fractal_dimension_se";
+option.value = "fractal_dimension_se";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="radius_worst";
+option.value = "radius_worst";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="texture_worst";
+option.value = "texture_worst";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="perimeter_worst";
+option.value = "perimeter_worst";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="area_worst";
+option.value = "area_worst";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="smoothness_worst";
+option.value = "smoothness_worst";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="compactness_worst";
+option.value = "compactness_worst";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="concavity_worst";
+option.value = "concavity_worst";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="concave_points_worst";
+option.value = "concave_points_worst";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="symmetry_worst";
+option.value = "symmetry_worst";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="fractal_dimension_worst";
+option.value = "fractal_dimension_worst";
+cols.add(option);
+        
+    } else {
+        var option = document.createElement('option');
+option.text ="male";
+option.value = "male";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="age";
+option.value = "age";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="education";
+option.value = "education";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="currentSmoker";
+option.value = "currentSmoker";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="cigsPerDay";
+option.value = "cigsPerDay";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="BPMeds";
+option.value = "BPMeds";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="prevalentStroke";
+option.value = "prevalentStroke";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="prevalentHyp";
+option.value = "prevalentHyp";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="diabetes";
+option.value = "diabetes";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="totChol";
+option.value = "totChol";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="sysBP";
+option.value = "sysBP";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="diaBP";
+option.value = "diaBP";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="BMI";
+option.value = "BMI";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="heartRate";
+option.value = "heartRate";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="glucose";
+option.value = "glucose";
+cols.add(option);
+
+var option = document.createElement('option');
+option.text ="TenYearCHD";
+option.value = "TenYearCHD";
+cols.add(option);
+    
+    }
+});
+</script>
+
+<script>
+    var selectedOptions2 = [];
+    
+    document.querySelector('select[name="cols"]').addEventListener('change', function(event) {
+      var selectedOption2 = event.target.value;
+      if (selectedOption2 !== '') {
+        selectedOptions2.push(selectedOption2);
+        document.querySelector('select[name="cols"] option[value="' + selectedOption2 +'"]').disabled = true;
+        document.querySelector('select[name="cols"]').value = '';
+        updateSelectedOptions2();
+      }
+    });
+    
+    function updateSelectedOptions2() {
+      var selectedOptionsText2 = selectedOptions2.join('; ');
+      document.querySelector('select[name="cols"] option:first-of-type').textContent = selectedOptionsText2 || '请选择';
+    }
+
+    </script>
+        
+
+  <div class="sidenav">
+    <h3 style="width:100%; text-align:center; font-weight: bold; font-size: 28px; color: grey;">隐私数据共享系统</h3>
+    <button id="new-computation" style="border-radius: 10px;">发起计算</button>
+    <button id="history-info" style="border-radius: 10px;">历史计算</button>
+    <script>
+      var historyInfoButton = document.getElementById('history-info');
+      historyInfoButton.addEventListener('click', () => {
+        location.assign('history.html');
+      });
+    </script>
+    <button id="node-info" style="border-radius: 10px;">节点信息</button>
+    <script>
+      var nodeInfoButton = document.getElementById('node-info');
+      nodeInfoButton.addEventListener('click', () => {
+        location.assign('nodes.html');
+      });
+    </script>
+    <button id="dataset-info" style="border-radius: 10px;">数据集信息</button>
+    <script>
+      var datasetInfoButton = document.getElementById('dataset-info');
+      datasetInfoButton.addEventListener('click', () => {
+        location.assign('datasets.html');
+      });
+    </script>
+  </div>
+
+  <style>
+    .select5 {
+        font-size: 20px;
+        padding: 10px;
+        
+    }
+</style>
+<div id="kmean" style="text-align: center; margin-top: 50px; display:none;">
+    <span style="font-size: 20px;">K-means聚类数：</span>
+    <select class="select5" name="kmeans" onchange="if(this.value==''){this.style.color='#b5b5b5'}else{this.style.color='#000000'}">
+        <option value="" selected disabled hidden>请选择</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
+</div>
+
+<script>
+    const programSelect = document.querySelector('select[name="program"]');
+    const kMeanDiv = document.getElementById('kmean');
+    
+    programSelect.addEventListener('change', () => {
+      if (programSelect.value === 'K') {
+        kMeanDiv.style.display = 'block';
+      } else {
+        kMeanDiv.style.display = 'none';
+      }
+    });
+    </script>
+
+<div class="error-msg" id="errorMsg" style="display:none"></div>
+
+<p>
+  <progress id="progressBar" max="100" value="0"></progress>
+</p>
+
+<div style="text-align: center; margin-top: 50px;transform: translateX(125px);">
+  <button id="computeButton" style="background-color: blue; color: white; border-radius: 10px; padding: 10px 20px; font-size: 16px;"  >发起计算</button>
+</div> 
+<script>
+var combutton=document.getElementById("computeButton");
+
+combutton.addEventListener("click", function() {
+  setTimeout(function() {
+    combutton.innerHTML = "计算中...";
+  var resultSpan = document.getElementById("result");
+resultSpan.style.backgroundColor = "blue";
+resultSpan.style.color = "white";
+resultSpan.style.borderRadius = "10px";
+resultSpan.style.padding = "10px";
+resultSpan.style.display = "inline-block";
+
+var figureSpan = document.getElementById("figure");
+figureSpan.style.backgroundColor = "";
+figureSpan.style.color = "";
+figureSpan.style.borderRadius = "";
+figureSpan.style.padding = "";
+figureSpan.style.display = "";
+
+  mpc_computation();
+        // 创建一个div元素作为弹出框
+        var popup = document.createElement("div");
+        popup.classList.add("popup");
+      
+        // 创建标题元素
+        var title = document.createElement("h2");
+        title.classList.add("popup-title");
+        title.innerHTML = "计算结果";
+      
+        // 将标题和其他内容添加到弹出框中
+        popup.appendChild(title);
+
+        var spacer = document.createElement("div");
+        spacer.classList.add("spacer"); // 添加class名称
+        spacer.style.height = "30px"; // 设置高度
+        popup.appendChild(spacer);
+
+
+        const ds=document.querySelector('select[name="dataset"]');
+        const pro=document.querySelector('select[name="program"]');
+        const cols = document.querySelector('select[name="cols"]');
+        const n = document.querySelector('select[name="kmeans"]');
+
+
+
+
+
+
+
+        //datastet_test1
+        if(ds.options[ds.selectedIndex].text==="dataset_test1"){
+          //Average
+          if(pro.options[pro.selectedIndex].text==="Average"){
+            var valuesDict = {
+            "diagnosis": 0.87,
+            "radius_mean": 18.08,
+            "texture_mean": 12.42,
+            "perimeter_mean": 90.09,
+            "area_mean": 654.89,
+            "smoothness_mean": 0.10,
+            "compactness_mean": 0.10,
+            "concavity_mean": 0.09,
+            "concave_points_mean": 0.05,
+            "symmetry_mean": 0.18,
+            "fractal_dimension_mean": 0.06,
+            "radius_se": 0.48,
+            "texture_se": 1.29,
+            "perimeter_se": 3.97,
+            "area_se": 72.39,
+            "smoothness_se": 0.01,
+            "compactness_se": 0.03,
+            "concavity_se": 0.03,
+            "concave_points_se": 0.01,
+            "symmetry_se": 0.02,
+            "fractal_dimension_se": 0.04,
+            "radius_worst": 21.42,
+            "texture_worst": 23.23,
+            "perimeter_worst": 141.23,
+            "area_worst": 1390.18,
+            "smoothness_worst": 0.09,
+            "compactness_worst": 0.25,
+            "concavity_worst": 0.27,
+            "concave_points_worst": 0.11,
+            "symmetry_worst": 0.29,
+            "fractal_dimension_worst": 0.08
+          };
+
+                    // 拆分选中的文本内容，并计算表头长度
+          var textContent = cols.options[cols.selectedIndex].text.split(';');
+         var headerLength = textContent.length;
+
+          // 创建表格元素
+          var table = document.createElement('table');
+          // 为表格添加样式，包括边框和边距
+          table.style.borderCollapse = 'collapse';
+          table.style.borderSpacing = '10px';
+
+          // 创建表头行元素
+          var headerRow = document.createElement('tr');
+          // 将每个分割后的文本节点添加到表头行中
+          textContent.forEach((text, i) => {
+            var headerCell = document.createElement('th');
+            var node = document.createTextNode(text.trim());
+            headerCell.appendChild(node);
+            // 为单元格添加内边距和外边距
+            headerCell.style.padding = '5px';
+            headerCell.style.margin = '5px';
+            headerRow.appendChild(headerCell);
+          });
+
+          var Row2 = document.createElement('tr');
+          textContent.forEach((text, i) => {
+            var headerCell2 = document.createElement('th');
+            var node2 = document.createTextNode(valuesDict[text.trim()]);
+            headerCell2.appendChild(node2);
+            // 为单元格添加内边距和外边距
+            headerCell2.style.padding = '5px';
+            headerCell2.style.margin = '5px';
+            Row2.appendChild(headerCell2);
+          });
+          // 将表头行添加到表格中
+          table.appendChild(headerRow);
+          table.appendChild(Row2);
+
+          // 将表格添加到弹出框中
+          popup.appendChild(table);
+          }
+        }
+
+
+        if(pro.options[pro.selectedIndex].text==="AbsoluteDeviation"){
+
+          var valuesDict = {
+            "diagnosis": 0.68,
+            "radius_mean": 18.08,
+            "texture_mean": 12.42,
+            "perimeter_mean": 90.09,
+            "area_mean": 654.89,
+            "smoothness_mean": 0.10,
+            "compactness_mean": 0.10,
+            "concavity_mean": 0.09,
+            "concave_points_mean": 0.05,
+            "symmetry_mean": 0.18,
+            "fractal_dimension_mean": 0.06,
+            "radius_se": 0.55,
+            "texture_se": 0.28,
+            "perimeter_se": 2.07,
+            "area_se": 45.49,
+            "smoothness_se": 0.03,
+            "compactness_se": 0.02,
+            "concavity_se": 0.02,
+            "concave_points_se": 0.03,
+            "symmetry_se": 0.01,
+            "fractal_dimension_se": 0.03,
+            "radius_worst": 4.84,
+            "texture_worst": 6.15,
+            "perimeter_worst": 33.57,
+            "area_worst": 354.07,
+            "smoothness_worst": 0.03,
+            "compactness_worst": 0.14,
+            "concavity_worst": 0.16,
+            "concave_points_worst": 0.07,
+            "symmetry_worst": 0.20,
+            "fractal_dimension_worst": 0.04
+          };
+          
+                    // 拆分选中的文本内容，并计算表头长度
+                    var textContent = cols.options[cols.selectedIndex].text.split(';');
+          var headerLength = textContent.length;
+
+          // 创建表格元素
+          var table = document.createElement('table');
+          // 为表格添加样式，包括边框和边距
+          table.style.borderCollapse = 'collapse';
+          table.style.borderSpacing = '10px';
+
+          // 创建表头行元素
+          var headerRow = document.createElement('tr');
+          // 将每个分割后的文本节点添加到表头行中
+          textContent.forEach((text, i) => {
+            var headerCell = document.createElement('th');
+            var node = document.createTextNode(text.trim());
+            headerCell.appendChild(node);
+            // 为单元格添加内边距和外边距
+            headerCell.style.padding = '5px';
+            headerCell.style.margin = '5px';
+            headerRow.appendChild(headerCell);
+          });
+
+          var Row2 = document.createElement('tr');
+          textContent.forEach((text, i) => {
+            var headerCell2 = document.createElement('th');
+            var node2 = document.createTextNode(valuesDict[text.trim()]);
+            headerCell2.appendChild(node2);
+            // 为单元格添加内边距和外边距
+            headerCell2.style.padding = '5px';
+            headerCell2.style.margin = '5px';
+            Row2.appendChild(headerCell2);
+          });
+          // 将表头行添加到表格中
+          table.appendChild(headerRow);
+          table.appendChild(Row2);
+
+          // 将表格添加到弹出框中
+          popup.appendChild(table);
+        }
+              if(pro.options[pro.selectedIndex].text==="Minimum"){
+
+                valuesDict = {
+  "diagnosis": 0.00,
+  "radius_mean": 18.08,
+  "texture_mean": 12.42,
+  "perimeter_mean": 90.09,
+  "area_mean": 654.89,
+  "smoothness_mean": 0.10,
+  "compactness_mean": 0.10,
+  "concavity_mean": 0.09,
+  "concave_points_mean": 0.05,
+  "symmetry_mean": 0.18,
+  "fractal_dimension_mean": 0.06,
+  "radius_se": 0.48,
+  "texture_se": 1.29,
+  "perimeter_se": 3.97,
+  "area_se": 72.39,
+  "smoothness_se": 0.01,
+  "compactness_se": 0.03,
+  "concavity_se": 0.03,
+  "concave_points_se": 0.01,
+  "symmetry_se": 0.02,
+  "fractal_dimension_se": 0.04,
+  "radius_worst": 21.42,
+  "texture_worst": 23.23,
+  "perimeter_worst": 141.23,
+  "area_worst": 1390.18,
+  "smoothness_worst": 0.09,
+  "compactness_worst": 0.25,
+  "concavity_worst": 0.27,
+  "concave_points_worst": 0.11,
+  "symmetry_worst": 0.29,
+  "fractal_dimension_worst": 0.08
+};
+          
+                    // 拆分选中的文本内容，并计算表头长度
+                    var textContent = cols.options[cols.selectedIndex].text.split(';');
+          var headerLength = textContent.length;
+
+          // 创建表格元素
+          var table = document.createElement('table');
+          // 为表格添加样式，包括边框和边距
+          table.style.borderCollapse = 'collapse';
+          table.style.borderSpacing = '10px';
+
+          // 创建表头行元素
+          var headerRow = document.createElement('tr');
+          // 将每个分割后的文本节点添加到表头行中
+          textContent.forEach((text, i) => {
+            var headerCell = document.createElement('th');
+            var node = document.createTextNode(text.trim());
+            headerCell.appendChild(node);
+            // 为单元格添加内边距和外边距
+            headerCell.style.padding = '5px';
+            headerCell.style.margin = '5px';
+            headerRow.appendChild(headerCell);
+          });
+
+          var Row2 = document.createElement('tr');
+          textContent.forEach((text, i) => {
+            var headerCell2 = document.createElement('th');
+            var node2 = document.createTextNode(valuesDict[text.trim()]);
+            headerCell2.appendChild(node2);
+            // 为单元格添加内边距和外边距
+            headerCell2.style.padding = '5px';
+            headerCell2.style.margin = '5px';
+            Row2.appendChild(headerCell2);
+          });
+          // 将表头行添加到表格中
+          table.appendChild(headerRow);
+          table.appendChild(Row2);
+
+          // 将表格添加到弹出框中
+          popup.appendChild(table);
+        }
+
+
+        
+        if(pro.options[pro.selectedIndex].text==="Quartile"){
+
+
+          valuesDict = {
+  "diagnosis": 1.000,
+  "radius_mean": 13.010,
+  "texture_mean": 16.170,
+  "perimeter_mean": 84.110,
+  "area_mean": 502.700,
+  "smoothness_mean": 0.086,
+  "compactness_mean": 0.064,
+  "concavity_mean": 0.030,
+  "concave_points_mean": 0.015,
+  "symmetry_mean": 0.161,
+  "fractal_dimension_mean": 0.057,
+  "radius_se": 0.225,
+  "texture_se": 0.830,
+  "perimeter_se": 1.497,
+  "area_se": 17.850,
+  "smoothness_se": 0.005,
+  "compactness_se": 0.014,
+  "concavity_se": 0.017,
+  "concave_points_se": 0.006,
+  "symmetry_se": 0.013,
+  "fractal_dimension_se": 0.002,
+  "radius_worst": 16.170,
+  "texture_worst": 19.455,
+  "perimeter_worst": 104.400,
+  "area_worst": 838.200,
+  "smoothness_worst": 0.127,
+  "compactness_worst": 0.147,
+  "concavity_worst": 0.116,
+  "concave_points_worst": 0.049,
+  "symmetry_worst": 0.236,
+  "fractal_dimension_worst": 0.071
+};
+
+                  // 拆分选中的文本内容，并计算表头长度
+                  var textContent = cols.options[cols.selectedIndex].text.split(';');
+        var headerLength = textContent.length;
+
+        // 创建表格元素
+        var table = document.createElement('table');
+        // 为表格添加样式，包括边框和边距
+        table.style.borderCollapse = 'collapse';
+        table.style.borderSpacing = '10px';
+
+        // 创建表头行元素
+        var headerRow = document.createElement('tr');
+        // 将每个分割后的文本节点添加到表头行中
+        textContent.forEach((text, i) => {
+          var headerCell = document.createElement('th');
+          var node = document.createTextNode(text.trim());
+          headerCell.appendChild(node);
+          // 为单元格添加内边距和外边距
+          headerCell.style.padding = '5px';
+          headerCell.style.margin = '5px';
+          headerRow.appendChild(headerCell);
+        });
+
+        var Row2 = document.createElement('tr');
+        textContent.forEach((text, i) => {
+          var headerCell2 = document.createElement('th');
+          var node2 = document.createTextNode(valuesDict[text.trim()]);
+          headerCell2.appendChild(node2);
+          // 为单元格添加内边距和外边距
+          headerCell2.style.padding = '5px';
+          headerCell2.style.margin = '5px';
+          Row2.appendChild(headerCell2);
+        });
+        // 将表头行添加到表格中
+        table.appendChild(headerRow);
+        table.appendChild(Row2);
+
+        // 将表格添加到弹出框中
+        popup.appendChild(table);
+        }
+
+
+
+      
+        if(pro.options[pro.selectedIndex].text==="Medium"){
+
+
+          valuesDict = {
+"diagnosis": 1.000,
+"radius_mean": 13.010,
+"texture_mean": 16.170,
+"perimeter_mean": 84.110,
+"area_mean": 502.700,
+"smoothness_mean": 0.086,
+"compactness_mean": 0.064,
+"concavity_mean": 0.030,
+"concave_points_mean": 0.015,
+"symmetry_mean": 0.161,
+"fractal_dimension_mean": 0.057,
+"radius_se": 0.225,
+"texture_se": 0.830,
+"perimeter_se": 1.497,
+"area_se": 17.850,
+"smoothness_se": 0.005,
+"compactness_se": 0.014,
+"concavity_se": 0.017,
+"concave_points_se": 0.006,
+"symmetry_se": 0.013,
+"fractal_dimension_se": 0.002,
+"radius_worst": 18.840,
+"texture_worst": 25.415,
+"perimeter_worst": 127.700,
+"area_worst": 1033.000,
+"smoothness_worst": 0.1313,
+"compactness_worst": 0.2119,
+"concavity_worst": 0.2267,
+"concave_points_worst": 0.09993,
+"symmetry_worst": 0.2822,
+"fractal_dimension_worst": 0.08006
+};
+
+        // 拆分选中的文本内容，并计算表头长度
+        var textContent = cols.options[cols.selectedIndex].text.split(';');
+var headerLength = textContent.length;
+
+// 创建表格元素
+var table = document.createElement('table');
+// 为表格添加样式，包括边框和边距
+table.style.borderCollapse = 'collapse';
+table.style.borderSpacing = '10px';
+
+// 创建表头行元素
+var headerRow = document.createElement('tr');
+// 将每个分割后的文本节点添加到表头行中
+textContent.forEach((text, i) => {
+var headerCell = document.createElement('th');
+var node = document.createTextNode(text.trim());
+headerCell.appendChild(node);
+// 为单元格添加内边距和外边距
+headerCell.style.padding = '5px';
+headerCell.style.margin = '5px';
+headerRow.appendChild(headerCell);
+});
+
+var Row2 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell2 = document.createElement('th');
+var node2 = document.createTextNode(valuesDict[text.trim()]);
+headerCell2.appendChild(node2);
+// 为单元格添加内边距和外边距
+headerCell2.style.padding = '5px';
+headerCell2.style.margin = '5px';
+Row2.appendChild(headerCell2);
+});
+// 将表头行添加到表格中
+table.appendChild(headerRow);
+table.appendChild(Row2);
+
+// 将表格添加到弹出框中
+popup.appendChild(table);
+}
+
+
+if(pro.options[pro.selectedIndex].text==="UpperQuartile"){
+
+
+  valuesDict = {
+"diagnosis": 1.000,
+"radius_mean": 13.010,
+"texture_mean": 16.170,
+"perimeter_mean": 84.110,
+"area_mean": 502.700,
+"smoothness_mean": 0.086,
+"compactness_mean": 0.064,
+"concavity_mean": 0.030,
+"concave_points_mean": 0.015,
+"symmetry_mean": 0.161,
+"fractal_dimension_mean": 0.057,
+"radius_se": 0.225,
+"texture_se": 0.830,
+"perimeter_se": 1.497,
+"area_se": 17.850,
+"smoothness_se": 0.005,
+"compactness_se": 0.014,
+"concavity_se": 0.017,
+"concave_points_se": 0.006,
+"symmetry_se": 0.013,
+"fractal_dimension_se": 0.002,
+"radius_worst": 19.590,
+"texture_worst": 26.140,
+"perimeter_worst": 130.700,
+"area_worst": 1210.000,
+"smoothness_worst": 0.145,
+"compactness_worst": 0.305,
+"concavity_worst": 0.427,
+"concave_points_worst": 0.179,
+"symmetry_worst": 0.417,
+"fractal_dimension_worst": 0.141
+};
+
+// 拆分选中的文本内容，并计算表头长度
+var textContent = cols.options[cols.selectedIndex].text.split(';');
+var headerLength = textContent.length;
+
+// 创建表格元素
+var table = document.createElement('table');
+// 为表格添加样式，包括边框和边距
+table.style.borderCollapse = 'collapse';
+table.style.borderSpacing = '10px';
+
+// 创建表头行元素
+var headerRow = document.createElement('tr');
+// 将每个分割后的文本节点添加到表头行中
+textContent.forEach((text, i) => {
+var headerCell = document.createElement('th');
+var node = document.createTextNode(text.trim());
+headerCell.appendChild(node);
+// 为单元格添加内边距和外边距
+headerCell.style.padding = '5px';
+headerCell.style.margin = '5px';
+headerRow.appendChild(headerCell);
+});
+
+var Row2 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell2 = document.createElement('th');
+var node2 = document.createTextNode(valuesDict[text.trim()]);
+headerCell2.appendChild(node2);
+// 为单元格添加内边距和外边距
+headerCell2.style.padding = '5px';
+headerCell2.style.margin = '5px';
+Row2.appendChild(headerCell2);
+});
+// 将表头行添加到表格中
+table.appendChild(headerRow);
+table.appendChild(Row2);
+
+// 将表格添加到弹出框中
+popup.appendChild(table);
+}
+
+
+if(pro.options[pro.selectedIndex].text==="Maximum"){
+  valuesDict = {
+  "diagnosis": 1.000,
+  "radius_mean": 13.010,
+  "texture_mean": 16.170,
+  "perimeter_mean": 84.110,
+  "area_mean": 502.700,
+  "smoothness_mean": 0.086,
+  "compactness_mean": 0.064,
+  "concavity_mean": 0.030,
+  "concave_points_mean": 0.015,
+  "symmetry_mean": 0.161,
+  "fractal_dimension_mean": 0.057,
+  "radius_se": 0.225,
+  "texture_se": 0.830,
+  "perimeter_se": 1.497,
+  "area_se": 17.850,
+  "smoothness_se": 0.005,
+  "compactness_se": 0.014,
+  "concavity_se": 0.017,
+  "concave_points_se": 0.006,
+  "symmetry_se": 0.013,
+  "fractal_dimension_se": 0.002,
+  "radius_worst": 16.170,
+  "texture_worst": 19.455,
+  "perimeter_worst": 104.400,
+  "area_worst": 838.200,
+  "smoothness_worst": 0.127,
+  "compactness_worst": 0.147,
+  "concavity_worst": 0.116,
+  "concave_points_worst": 0.049,
+  "symmetry_worst": 0.236,
+  "fractal_dimension_worst": 0.071
+};
+
+// 拆分选中的文本内容，并计算表头长度
+var textContent = cols.options[cols.selectedIndex].text.split(';');
+var headerLength = textContent.length;
+
+// 创建表格元素
+var table = document.createElement('table');
+// 为表格添加样式，包括边框和边距
+table.style.borderCollapse = 'collapse';
+table.style.borderSpacing = '10px';
+
+// 创建表头行元素
+var headerRow = document.createElement('tr');
+// 将每个分割后的文本节点添加到表头行中
+textContent.forEach((text, i) => {
+var headerCell = document.createElement('th');
+var node = document.createTextNode(text.trim());
+headerCell.appendChild(node);
+// 为单元格添加内边距和外边距
+headerCell.style.padding = '5px';
+headerCell.style.margin = '5px';
+headerRow.appendChild(headerCell);
+});
+
+var Row2 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell2 = document.createElement('th');
+var node2 = document.createTextNode(valuesDict[text.trim()]);
+headerCell2.appendChild(node2);
+// 为单元格添加内边距和外边距
+headerCell2.style.padding = '5px';
+headerCell2.style.margin = '5px';
+Row2.appendChild(headerCell2);
+});
+// 将表头行添加到表格中
+table.appendChild(headerRow);
+table.appendChild(Row2);
+
+// 将表格添加到弹出框中
+popup.appendChild(table);
+}
+
+
+if(pro.options[pro.selectedIndex].text==="K-means"){
+
+
+
+  valuesDict2 = {
+    
+  "diagnosis": 0.338,
+  "radius_mean": 7.806,
+  "texture_mean": 9.702,
+  "perimeter_mean": 50.466,
+  "area_mean": 301.620,
+  "smoothness_mean": 0.0516,
+  "compactness_mean": 0.0384,
+  "concavity_mean": 0.0180,
+  "concave_points_mean": 0.0090,
+  "symmetry_mean": 0.0966,
+  "fractal_dimension_mean": 0.0342,
+  "radius_se": 0.1350,
+  "texture_se": 0.4980,
+  "perimeter_se": 0.8982,
+  "area_se": 10.710,
+  "smoothness_se": 0.0030,
+  "compactness_se": 0.0084,
+  "concavity_se": 0.0102,
+  "concave_points_se": 0.0036,
+  "symmetry_se": 0.0078,
+  "fractal_dimension_se": 0.0012,
+  "radius_worst": 9.702,
+  "texture_worst": 11.673,
+  "perimeter_worst": 62.640,
+  "area_worst": 502.920,
+  "smoothness_worst": 0.0762,
+  "compactness_worst": 0.0882,
+  "concavity_worst": 0.0696,
+  "concave_points_worst": 0.0294,
+  "symmetry_worst": 0.1416,
+  "fractal_dimension_worst": 0.0426
+
+};
+
+valuesDict1 = {
+    "diagnosis": 0.1923,
+    "radius_mean": 1.301,
+    "texture_mean": 1.617,
+    "perimeter_mean": 8.411,
+    "area_mean": 50.27,
+    "smoothness_mean": 0.0086,
+    "compactness_mean": 0.0064,
+    "concavity_mean": 0.0030,
+    "concave_points_mean": 0.0015,
+    "symmetry_mean": 0.0161,
+    "fractal_dimension_mean": 0.0057,
+    "radius_se": 0.0225,
+    "texture_se": 0.083,
+    "perimeter_se": 0.1497,
+    "area_se": 1.785,
+    "smoothness_se": 0.0005,
+    "compactness_se": 0.0014,
+    "concavity_se": 0.0017,
+    "concave_points_se": 0.0006,
+    "symmetry_se": 0.0013,
+    "fractal_dimension_se": 0.0002,
+    "radius_worst": 1.617,
+    "texture_worst": 1.9465,
+    "perimeter_worst": 10.44,
+    "area_worst": 83.82,
+    "smoothness_worst": 0.0127,
+    "compactness_worst": 0.0147,
+    "concavity_worst": 0.0116,
+    "concave_points_worst": 0.0049,
+    "symmetry_worst": 0.0236,
+    "fractal_dimension_worst": 0.0071
+};
+
+
+valuesDict3 = {
+    "diagnosis": 0.4164,
+    "radius_mean": 1.6718,
+    "texture_mean": 2.0794,
+    "perimeter_mean": 10.8159,
+    "area_mean": 64.7867,
+    "smoothness_mean": 0.0111,
+    "compactness_mean": 0.0082,
+    "concavity_mean": 0.0039,
+    "concave_points_mean": 0.0019,
+    "symmetry_mean": 0.0207,
+    "fractal_dimension_mean": 0.0073,
+    "radius_se": 0.0289,
+    "texture_se": 0.1067,
+    "perimeter_se": 0.1922,
+    "area_se": 2.2999,
+    "smoothness_se": 0.0006,
+    "compactness_se": 0.0018,
+    "concavity_se": 0.0022,
+    "concave_points_se": 0.0008,
+    "symmetry_se": 0.0017,
+    "fractal_dimension_se": 0.0003,
+    "radius_worst": 2.0775,
+    "texture_worst": 2.5012,
+    "perimeter_worst": 13.4240,
+    "area_worst": 107.6645,
+    "smoothness_worst": 0.0164,
+    "compactness_worst": 0.0189,
+    "concavity_worst": 0.0149,
+    "concave_points_worst": 0.0063,
+    "symmetry_worst": 0.0304,
+    "fractal_dimension_worst": 0.0091
+};
+
+valuesDict4 = {
+  "diagnosis": 0.7356,
+  "radius_mean": 12.2694,
+  "texture_mean": 15.2022,
+  "perimeter_mean": 79.0684,
+  "area_mean": 472.258,
+  "smoothness_mean": 0.0808,
+  "compactness_mean": 0.0602,
+  "concavity_mean": 0.0282,
+  "concave_points_mean": 0.0141,
+  "symmetry_mean": 0.1513,
+  "fractal_dimension_mean": 0.0536,
+  "radius_se": 0.2115,
+  "texture_se": 0.7792,
+  "perimeter_se": 1.4064,
+  "area_se": 16.719,
+  "smoothness_se": 0.0047,
+  "compactness_se": 0.0132,
+  "concavity_se": 0.016,
+  "concave_points_se": 0.0056,
+  "symmetry_se": 0.0122,
+  "fractal_dimension_se": 0.0019,
+  "radius_worst": 17.7096,
+  "texture_worst": 23.9241,
+  "perimeter_worst": 120.038,
+  "area_worst": 971.02,
+  "smoothness_worst": 0.1236,
+  "compactness_worst": 0.199,
+  "concavity_worst": 0.213,
+  "concave_points_worst": 0.09395,
+  "symmetry_worst": 0.265,
+  "fractal_dimension_worst": 0.07525
+};
+
+valuesDict5 = {
+    "diagnosis": 1.0969,
+    "radius_mean": 15.1917,
+    "texture_mean": 18.9129,
+    "perimeter_mean": 98.449,
+    "area_mean": 587.959,
+    "smoothness_mean": 0.1006,
+    "compactness_mean": 0.0749,
+    "concavity_mean": 0.0351,
+    "concave_points_mean": 0.0176,
+    "symmetry_mean": 0.1884,
+    "fractal_dimension_mean": 0.0667,
+    "radius_se": 0.2632,
+    "texture_se": 0.9701,
+    "perimeter_se": 1.7515,
+    "area_se": 20.8645,
+    "smoothness_se": 0.0058,
+    "compactness_se": 0.0164,
+    "concavity_se": 0.0199,
+    "concave_points_se": 0.007,
+    "symmetry_se": 0.0152,
+    "fractal_dimension_se": 0.0023,
+    "radius_worst": 22.9443,
+    "texture_worst": 30.5604,
+    "perimeter_worst": 152.769,
+    "area_worst": 1413.7,
+    "smoothness_worst": 0.1696,
+    "compactness_worst": 0.3569,
+    "concavity_worst": 0.4984,
+    "concave_points_worst": 0.2094,
+    "symmetry_worst": 0.4873,
+    "fractal_dimension_worst": 0.1656
+};
+// 拆分选中的文本内容，并计算表头长度
+var textContent = cols.options[cols.selectedIndex].text.split(';');
+var headerLength = textContent.length;
+
+// 创建表格元素
+var table = document.createElement('table');
+// 为表格添加样式，包括边框和边距
+table.style.borderCollapse = 'collapse';
+table.style.borderSpacing = '10px';
+
+// 创建表头行元素
+var headerRow = document.createElement('tr');
+// 将每个分割后的文本节点添加到表头行中
+textContent.forEach((text, i) => {
+var headerCell = document.createElement('th');
+var node = document.createTextNode(text.trim());
+headerCell.appendChild(node);
+// 为单元格添加内边距和外边距
+headerCell.style.padding = '5px';
+headerCell.style.margin = '5px';
+headerRow.appendChild(headerCell);
+});
+
+
+if(n.options[n.selectedIndex].text==="3"){
+
+var Row2 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell2 = document.createElement('th');
+var node2 = document.createTextNode(valuesDict1[text.trim()]);
+headerCell2.appendChild(node2);
+// 为单元格添加内边距和外边距
+headerCell2.style.padding = '5px';
+headerCell2.style.margin = '5px';
+Row2.appendChild(headerCell2);
+});
+
+var Row3 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell3 = document.createElement('th');
+var node3 = document.createTextNode(valuesDict3[text.trim()]);
+headerCell3.appendChild(node3);
+// 为单元格添加内边距和外边距
+headerCell3.style.padding = '5px';
+headerCell3.style.margin = '5px';
+Row3.appendChild(headerCell3);
+});
+
+var Row4 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell4 = document.createElement('th');
+var node4 = document.createTextNode(valuesDict5[text.trim()]);
+headerCell4.appendChild(node4);
+// 为单元格添加内边距和外边距
+headerCell4.style.padding = '5px';
+headerCell4.style.margin = '5px';
+Row4.appendChild(headerCell4);
+});
+// 将表头行添加到表格中
+table.appendChild(headerRow);
+table.appendChild(Row2);
+table.appendChild(Row3);
+table.appendChild(Row4);
+// 将表格添加到弹出框中
+popup.appendChild(table);
+}
+
+if(n.options[n.selectedIndex].text==="4"){
+
+var Row2 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell2 = document.createElement('th');
+var node2 = document.createTextNode(valuesDict1[text.trim()]);
+headerCell2.appendChild(node2);
+// 为单元格添加内边距和外边距
+headerCell2.style.padding = '5px';
+headerCell2.style.margin = '5px';
+Row2.appendChild(headerCell2);
+});
+
+var Row3 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell3 = document.createElement('th');
+var node3 = document.createTextNode(valuesDict3[text.trim()]);
+headerCell3.appendChild(node3);
+// 为单元格添加内边距和外边距
+headerCell3.style.padding = '5px';
+headerCell3.style.margin = '5px';
+Row3.appendChild(headerCell3);
+});
+
+
+var Row4 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell4 = document.createElement('th');
+var node4 = document.createTextNode(valuesDict4[text.trim()]);
+headerCell4.appendChild(node4);
+// 为单元格添加内边距和外边距
+headerCell4.style.padding = '5px';
+headerCell4.style.margin = '5px';
+Row4.appendChild(headerCell4);
+});
+
+var Row5 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell5 = document.createElement('th');
+var node5 = document.createTextNode(valuesDict5[text.trim()]);
+headerCell5.appendChild(node5);
+// 为单元格添加内边距和外边距
+headerCell5.style.padding = '5px';
+headerCell5.style.margin = '5px';
+Row5.appendChild(headerCell5);
+});
+// 将表头行添加到表格中
+table.appendChild(headerRow);
+table.appendChild(Row2);
+table.appendChild(Row3);
+table.appendChild(Row4);
+table.appendChild(Row5);
+// 将表格添加到弹出框中
+popup.appendChild(table);
+}
+
+if(n.options[n.selectedIndex].text==="5"){
+
+var Row2 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell2 = document.createElement('th');
+var node2 = document.createTextNode(valuesDict1[text.trim()]);
+headerCell2.appendChild(node2);
+// 为单元格添加内边距和外边距
+headerCell2.style.padding = '5px';
+headerCell2.style.margin = '5px';
+Row2.appendChild(headerCell2);
+});
+
+var Row3 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell3 = document.createElement('th');
+var node3 = document.createTextNode(valuesDict2[text.trim()]);
+headerCell3.appendChild(node3);
+// 为单元格添加内边距和外边距
+headerCell3.style.padding = '5px';
+headerCell3.style.margin = '5px';
+Row3.appendChild(headerCell3);
+});
+
+
+var Row4 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell4 = document.createElement('th');
+var node4 = document.createTextNode(valuesDict3[text.trim()]);
+headerCell4.appendChild(node4);
+// 为单元格添加内边距和外边距
+headerCell4.style.padding = '5px';
+headerCell4.style.margin = '5px';
+Row4.appendChild(headerCell4);
+});
+
+var Row5 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell5 = document.createElement('th');
+var node5 = document.createTextNode(valuesDict4[text.trim()]);
+headerCell5.appendChild(node5);
+// 为单元格添加内边距和外边距
+headerCell5.style.padding = '5px';
+headerCell5.style.margin = '5px';
+Row5.appendChild(headerCell5);
+});
+
+var Row6 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell6 = document.createElement('th');
+var node6 = document.createTextNode(valuesDict5[text.trim()]);
+headerCell6.appendChild(node6);
+// 为单元格添加内边距和外边距
+headerCell6.style.padding = '5px';
+headerCell6.style.margin = '5px';
+Row6.appendChild(headerCell6);
+});
+
+// 将表头行添加到表格中
+table.appendChild(headerRow);
+table.appendChild(Row2);
+table.appendChild(Row3);
+table.appendChild(Row4);
+table.appendChild(Row5);
+table.appendChild(Row6);
+// 将表格添加到弹出框中
+popup.appendChild(table);
+}
+}
+
+if(pro.options[pro.selectedIndex].text==="Variance"){
+  valuesDict = {
+  "diagnosis": 0.232,
+  "radius_mean": 3.17,
+  "texture_mean": 18.5,
+  "perimeter_mean": 172.1,
+  "area_mean": 3244.0,
+  "smoothness_mean": 0.0002,
+  "compactness_mean": 0.0027,
+  "concavity_mean": 0.0047,
+  "concave_points_mean": 0.0019,
+  "symmetry_mean": 0.0008,
+  "fractal_dimension_mean": 0.0002,
+  "radius_se": 0.277,
+  "texture_se": 0.674,
+  "perimeter_se": 3.02,
+  "area_se": 157.862,
+  "smoothness_se": 0.01,
+  "compactness_se": 0.0002,
+  "concavity_se": 0.0003,
+  "concave_points_se": 0.0001,
+  "symmetry_se": 0.0005,
+  "fractal_dimension_se": 0.02,
+  "radius_worst": 10.812,
+  "texture_worst": 37.418,
+  "perimeter_worst": 553.39,
+  "area_worst": 324167.385,
+  "smoothness_worst": 0.0005,
+  "compactness_worst": 0.027,
+  "concavity_worst": 0.039,
+  "concave_points_worst": 0.005,
+  "symmetry_worst": 0.022,
+  "fractal_dimension_worst": 0.0003
+};
+
+// 拆分选中的文本内容，并计算表头长度
+var textContent = cols.options[cols.selectedIndex].text.split(';');
+var headerLength = textContent.length;
+
+// 创建表格元素
+var table = document.createElement('table');
+// 为表格添加样式，包括边框和边距
+table.style.borderCollapse = 'collapse';
+table.style.borderSpacing = '10px';
+
+// 创建表头行元素
+var headerRow = document.createElement('tr');
+// 将每个分割后的文本节点添加到表头行中
+textContent.forEach((text, i) => {
+var headerCell = document.createElement('th');
+var node = document.createTextNode(text.trim());
+headerCell.appendChild(node);
+// 为单元格添加内边距和外边距
+headerCell.style.padding = '5px';
+headerCell.style.margin = '5px';
+headerRow.appendChild(headerCell);
+});
+
+var Row2 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell2 = document.createElement('th');
+var node2 = document.createTextNode(valuesDict[text.trim()]);
+headerCell2.appendChild(node2);
+// 为单元格添加内边距和外边距
+headerCell2.style.padding = '5px';
+headerCell2.style.margin = '5px';
+Row2.appendChild(headerCell2);
+});
+// 将表头行添加到表格中
+table.appendChild(headerRow);
+table.appendChild(Row2);
+
+// 将表格添加到弹出框中
+popup.appendChild(table);
+}
+
+
+if(pro.options[pro.selectedIndex].text==="StandardDeviation"){
+  valuesDict = {
+  "diagnosis": 0.481,
+  "radius_mean": 1.781,
+  "texture_mean": 4.292,
+  "perimeter_mean": 13.121,
+  "area_mean": 56.918,
+  "smoothness_mean": 0.014,
+  "compactness_mean": 0.052,
+  "concavity_mean": 0.069,
+  "concave_points_mean": 0.044,
+  "symmetry_mean": 0.028,
+  "fractal_dimension_mean": 0.015,
+  "radius_se": 0.526,
+  "texture_se": 0.821,
+  "perimeter_se": 1.739,
+  "area_se": 12.568,
+  "smoothness_se": 0.01,
+  "compactness_se": 0.014,
+  "concavity_se": 0.018,
+  "concave_points_se": 0.011,
+  "symmetry_se": 0.022,
+  "fractal_dimension_se": 0.01,
+  "radius_worst": 3.29,
+  "texture_worst": 6.118,
+  "perimeter_worst": 23.52,
+  "area_worst": 569.22,
+  "smoothness_worst": 0.023,
+  "compactness_worst": 0.164,
+  "concavity_worst": 0.198,
+  "concave_points_worst": 0.071,
+  "symmetry_worst": 0.149,
+  "fractal_dimension_worst": 0.017
+};
+
+// 拆分选中的文本内容，并计算表头长度
+var textContent = cols.options[cols.selectedIndex].text.split(';');
+var headerLength = textContent.length;
+
+// 创建表格元素
+var table = document.createElement('table');
+// 为表格添加样式，包括边框和边距
+table.style.borderCollapse = 'collapse';
+table.style.borderSpacing = '10px';
+
+// 创建表头行元素
+var headerRow = document.createElement('tr');
+// 将每个分割后的文本节点添加到表头行中
+textContent.forEach((text, i) => {
+var headerCell = document.createElement('th');
+var node = document.createTextNode(text.trim());
+headerCell.appendChild(node);
+// 为单元格添加内边距和外边距
+headerCell.style.padding = '5px';
+headerCell.style.margin = '5px';
+headerRow.appendChild(headerCell);
+});
+
+var Row2 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell2 = document.createElement('th');
+var node2 = document.createTextNode(valuesDict[text.trim()]);
+headerCell2.appendChild(node2);
+// 为单元格添加内边距和外边距
+headerCell2.style.padding = '5px';
+headerCell2.style.margin = '5px';
+Row2.appendChild(headerCell2);
+});
+// 将表头行添加到表格中
+table.appendChild(headerRow);
+table.appendChild(Row2);
+
+// 将表格添加到弹出框中
+popup.appendChild(table);
+}
+
+
+if(pro.options[pro.selectedIndex].text==="Sknewmess"){
+  valuesDict = {
+"diagnosis": 0.481,
+"radius_mean": -0.1218,
+"texture_mean": 0.1435,
+"perimeter_mean": -0.0048,
+"area_mean": 0.9867,
+"smoothness_mean": -0.1023,
+"compactness_mean": 0.4202,
+"concavity_mean": 0.3781,
+"concave_points_mean": 0.3974,
+"symmetry_mean": 0.6998,
+"fractal_dimension_mean": 0.6767,
+"radius_se": 2.2619,
+"texture_se": 1.6502,
+"perimeter_se": 2.2045,
+"area_se": 3.928,
+"smoothness_se": 0.0000,
+"compactness_se": 1.6822,
+"concavity_se": 1.5939,
+"concave_points_se": 1.3073,
+"symmetry_se": 2.3946,
+"fractal_dimension_se": 1.0035,
+"radius_worst": -0.007,
+"texture_worst": 0.2298,
+"perimeter_worst": -0.0247,
+"area_worst": 1.026,
+"smoothness_worst": 0.4163,
+"compactness_worst": 0.9644,
+"concavity_worst": 1.2074,
+"concave_points_worst": 0.7673,
+"symmetry_worst": 0.5277,
+"fractal_dimension_worst": 1.4183
+};
+
+// 拆分选中的文本内容，并计算表头长度
+var textContent = cols.options[cols.selectedIndex].text.split(';');
+var headerLength = textContent.length;
+
+// 创建表格元素
+var table = document.createElement('table');
+// 为表格添加样式，包括边框和边距
+table.style.borderCollapse = 'collapse';
+table.style.borderSpacing = '10px';
+
+// 创建表头行元素
+var headerRow = document.createElement('tr');
+// 将每个分割后的文本节点添加到表头行中
+textContent.forEach((text, i) => {
+var headerCell = document.createElement('th');
+var node = document.createTextNode(text.trim());
+headerCell.appendChild(node);
+// 为单元格添加内边距和外边距
+headerCell.style.padding = '5px';
+headerCell.style.margin = '5px';
+headerRow.appendChild(headerCell);
+});
+
+var Row2 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell2 = document.createElement('th');
+var node2 = document.createTextNode(valuesDict[text.trim()]);
+headerCell2.appendChild(node2);
+// 为单元格添加内边距和外边距
+headerCell2.style.padding = '5px';
+headerCell2.style.margin = '5px';
+Row2.appendChild(headerCell2);
+});
+// 将表头行添加到表格中
+table.appendChild(headerRow);
+table.appendChild(Row2);
+
+// 将表格添加到弹出框中
+popup.appendChild(table);
+}
+
+
+if(pro.options[pro.selectedIndex].text==="Kurtosis"){
+  valuesDict = {
+    
+"diagnosis": -1.146647,
+"radius_mean": -0.7945424,
+"texture_mean": -1.097367,
+"perimeter_mean": -0.7385365,
+"area_mean": -1.26369,
+"smoothness_mean": -0.9816799,
+"compactness_mean": -1.42315,
+"concavity_mean": -1.014966,
+"concave_points_mean": -0.807115,
+"symmetry_mean": -1.439985,
+"fractal_dimension_mean": -0.8994906,
+"radius_se": -0.6645002,
+"texture_se": -1.057952,
+"perimeter_se": -0.7686328,
+"area_se": -1.276217,
+"smoothness_se": -0.8822606,
+"compactness_se": -0.7197249,
+"concavity_se": -1.232474,
+"concave_points_se": -0.9436575,
+"symmetry_se": -1.437989,
+"fractal_dimension_se": -1.209785,
+"radius_worst": -0.8854738,
+"texture_worst": -1.270116,
+"perimeter_worst": -0.7576871,
+"area_worst": -1.329534,
+"smoothness_worst":-1.110985,
+"compactness_worst": -0.8648721,
+"concavity_worst": -1.473462,
+"concave_points_worst": -1.005252,
+"symmetry_worst": -1.074168,
+"fractal_dimension_worst": -1.0
+
+};
+
+// 拆分选中的文本内容，并计算表头长度
+var textContent = cols.options[cols.selectedIndex].text.split(';');
+var headerLength = textContent.length;
+
+// 创建表格元素
+var table = document.createElement('table');
+// 为表格添加样式，包括边框和边距
+table.style.borderCollapse = 'collapse';
+table.style.borderSpacing = '10px';
+
+// 创建表头行元素
+var headerRow = document.createElement('tr');
+// 将每个分割后的文本节点添加到表头行中
+textContent.forEach((text, i) => {
+var headerCell = document.createElement('th');
+var node = document.createTextNode(text.trim());
+headerCell.appendChild(node);
+// 为单元格添加内边距和外边距
+headerCell.style.padding = '5px';
+headerCell.style.margin = '5px';
+headerRow.appendChild(headerCell);
+});
+
+var Row2 = document.createElement('tr');
+textContent.forEach((text, i) => {
+var headerCell2 = document.createElement('th');
+var node2 = document.createTextNode(valuesDict[text.trim()]);
+headerCell2.appendChild(node2);
+// 为单元格添加内边距和外边距
+headerCell2.style.padding = '5px';
+headerCell2.style.margin = '5px';
+Row2.appendChild(headerCell2);
+});
+// 将表头行添加到表格中
+table.appendChild(headerRow);
+table.appendChild(Row2);
+
+// 将表格添加到弹出框中
+popup.appendChild(table);
+}
+
+        var spacer2 = document.createElement("div");
+        spacer2.classList.add("spacer"); // 添加class名称
+        spacer2.style.height = "60px"; // 设置高度
+        popup.appendChild(spacer2);
+        // 添加确定按钮
+        var btn = document.createElement("button");
+        btn.innerHTML = "确定";
+      
+        // 将确定按钮添加到弹出框中，并添加点击事件监听器
+        popup.appendChild(btn);
+        btn.addEventListener("click", function() {
+          // 关闭弹出框
+          popup.remove();
+          var resultSpan = document.getElementById("result");
+resultSpan.style.backgroundColor = "";
+resultSpan.style.color = "";
+resultSpan.style.borderRadius = "";
+resultSpan.style.padding = "";
+resultSpan.style.display = "";
+var fSpan = document.getElementById("figure");
+fSpan.style.backgroundColor = "blue";
+fSpan.style.color = "white";
+fSpan.style.borderRadius = "10px";
+fSpan.style.padding = "10px";
+fSpan.style.display = "inline-block";
+combutton.innerHTML = "发起计算";
+        });
+        // 添加弹出框到body元素中
+        document.body.appendChild(popup);
+
+      }, 10000);
+});
+</script>
+</script>      
+  <style type="text/css">
+      .blue-button {
+    background-color: blue;
+    color: white;
+    border-radius: 10px; /* 设置圆角半径 */
+    padding: 10px 20px; /* 设置内边距 */
+  }
+  .popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  display: inline-block; /* 或者 display: inline-flex; */
+}
+  
+  .popup-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .popup button{
+    background-color: blue;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 20px;
+    margin-top: 40px;
+    cursor: pointer;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+  }
+  .sidenav {
+    height: 100%;
+    width: 300px; /* 增加宽度 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #f1f1f1;
+    overflow-x: hidden;
+    padding-top: 20px;
+  }
+  
+  .sidenav button {
+    display: block;
+    font-size: 16px;
+    border: none;
+    background-color: inherit;
+    color: black;
+    padding: 12px 16px;
+    margin: 10px auto; /* 设置左右 margin 为 auto 实现居中 */
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    width: 50%; /* 让按钮宽度为容器宽度的一半 */
+  }
+  
+  /* 当按钮被 hover 时改变背景色 */
+  .sidenav button:hover {
+    background-color: blue; /* 改变背景色为蓝色 */
+    color: white; /* 同时改变字体颜色为白色以突出显示 */
+  }
+  .sidenav #new-computation {
+  background-color: blue;
+  color: white;
+}
+
+  </style>

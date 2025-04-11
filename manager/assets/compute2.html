@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>MPC service</title>
+  <link rel="stylesheet" href="./style/index.css">
+</head>
+
+<!-- Code for wasm -->
+
+<script src="wasm_exec.js"></script>
+<script type="text/javascript" src="load_wasm.js"></script>
+
+<!-- Load custom js functions -->
+<script type="text/javascript" src="mpc_utils.js"></script>
+<script type="text/javascript" src="dataset_utils.js"></script>
+
+<div style="text-align: center; margin-top: 50px; transform: translateX(100px);">
+    <span style="margin-right: 200px; font-size: 20px;">1.公私钥生成</span>
+    <span id="figure" style="margin-right: 200px; font-size: 20px;">2.参数设置</span>
+    <script>
+        var Span = document.getElementById("figure");
+Span.style.backgroundColor = "blue";
+Span.style.color = "white";
+Span.style.borderRadius = "10px";
+Span.style.padding = "10px";
+Span.style.display = "inline-block";
+    </script>
+    <span id="result" style="font-size: 20px;">3.结果查看</span>
+  </div>
+
+
+  <div class="sidenav">
+    <h3 style="width:100%; text-align:center; font-weight: bold; font-size: 28px; color: grey;">隐私数据共享系统</h3>
+    <button id="new-computation" style="border-radius: 10px;">发起计算</button>
+    <button id="history-info" style="border-radius: 10px;">历史计算</button>
+    <script>
+      var historyInfoButton = document.getElementById('history-info');
+      historyInfoButton.addEventListener('click', () => {
+        location.assign('history.html');
+      });
+    </script>
+    <button id="node-info" style="border-radius: 10px;">节点信息</button>
+    <script>
+      var nodeInfoButton = document.getElementById('node-info');
+      nodeInfoButton.addEventListener('click', () => {
+        location.assign('nodes.html');
+      });
+    </script>
+    <button id="dataset-info" style="border-radius: 10px;">数据集信息</button>
+    <script>
+      var datasetInfoButton = document.getElementById('dataset-info');
+      datasetInfoButton.addEventListener('click', () => {
+        location.assign('datasets.html');
+      });
+    </script>
+  </div>
+
+
+
+
+
+
+
+  <div class="caption-text-wrap">
+    <table style="  margin-left: 300px;
+    margin-top: 50px;   width: 400px;" class="datasets">
+      <thead>
+        <tr>
+          <th></th>
+          <th>节点</th>
+
+        </tr>
+      </thead>
+      <tbody id="nodes">
+      </tbody>
+    </table>
+    <script>
+       nodesTable = document.querySelector("#nodes");
+  let i = 0;
+  fetch("/nodes")
+    .then((response) => response.json())
+    .then((nodesList) => {
+      //Once we fetch the list, we iterate over it
+      nodesList.forEach((node) => {
+        // console.log(node)
+        // Create the table row
+        row = document.createElement("tr");
+
+        // Create the table data elements for the species and description columns
+        var checkbox = document.createElement("INPUT");
+        checkbox.type = "checkbox";
+        checkbox.className = "nodes";
+        checkbox.value = i;
+        i = i + 1;
+        var check = document.createElement("td");
+        var name = document.createElement("td");
+        name.innerHTML = node.name;
+        var location = document.createElement("td");
+        location.innerHTML = node.address;
+        var description = document.createElement("td");
+        description.innerHTML = node.description;
+
+        // Add the data elements to the row
+        check.appendChild(checkbox);
+        row.appendChild(check);
+        row.appendChild(name);
+        nodesTable.appendChild(row);
+      });
+    }); 
+    </script>
+  </div>
+
+
+  <div class="node-outer-wrap">
+
+    <div class="node-wrap">
+
+      <h4 class="available-detaset">  </h4>
+      <table 
+      style="  margin-left: 300px;
+    margin-top: 50px;   width: 400px;" class="datasets">
+        <thead>
+          <tr>
+            <th> </th>
+            <th>数据集</th>
+
+          </tr>
+        </thead>
+        <tbody id="datasets">
+        </tbody>
+      </table>
+
+      <script> 
+        datasetsTable = document.querySelector("#datasets");
+   let i2 = 0;
+// fetch("/datasets")
+      fetch("/datasets")
+    .then((response) => response.json())
+    .then((datasetsList) => {
+      //Once we fetch the list, we iterate over it
+      datasetsList.forEach((dataset) => {
+        // console.log(dataset)
+        // Create the table row
+        row = document.createElement("tr");
+
+        // Create the table data elements for the species and description columns
+        var checkbox = document.createElement("INPUT");
+        checkbox.type = "checkbox";
+        checkbox.className = "datasets";
+        checkbox.value = i2;
+        i2 = i2 + 1;
+        var check = document.createElement("td");
+
+        var name = document.createElement("td");
+        name.innerHTML = dataset.name;
+        var size = document.createElement("td");
+        size.innerHTML = dataset.size;
+        // var cols = document.createElement("td");
+        // cols.innerHTML = dataset.cols;
+        var shared_nodes = document.createElement("td");
+        shared_nodes.innerHTML = dataset.shared_with;
+
+        // Add the data elements to the row
+        check.appendChild(checkbox);
+        row.appendChild(check);
+        row.appendChild(name);
+        datasetsTable.appendChild(row);
+      });
+    }); 
+    </script>
+    </div>
+</div>
+
+<div class="caption-text-wrap">
+  <table style="margin-left: 300px; margin-top: 50px; width: 400px;" class="datasets">
+    <thead>
+      <tr>
+       
+        <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;计算程序</th>
+      </tr>
+    </thead>
+    <tbody id="nodes">
+      <tr>
+   
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="avg" name="contact" value="avg">
+              <label for="avg">Average</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+    
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="min" name="contact" value="min">
+              <label for="min">Minimum</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="max" name="contact" value="max">
+              <label for="max">Maximum</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+    
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="absolute" name="contact" value="absolute">
+              <label for="absolute">AbsoluteDeviation</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+  
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="quartile" name="contact" value="quartile">
+              <label for="quartile">Quartile</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+       
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="medium" name="contact" value="medium">
+              <label for="medium">Medium</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+      
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="upperquartile" name="contact" value="upperquartile">
+              <label for="upperquartile">UpperQuartile</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+   
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="variance" name="contact" value="variance">
+              <label for="variance">Variance</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+       
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="standard" name="contact" value="standard">
+              <label for="standard">StandardDeviation</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+    
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="sknewness" name="contact" value="sknewness">
+              <label for="sknewness">Sknewness</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+    
+        <td>
+          <div class="nodes-select-outer-wrap">
+            <div class="node-select-wrap">
+              <input type="checkbox" class="function" id="kurtosis" name="contact" value="kurtosis">
+              <label for="kurtosis">Kurtosis</label>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+    </table>
+    </div>
+
+<div style="  font-size: 20px;">
+    <div class="nodes-select-outer-wrap" style="margin-left: 300px; ">
+
+
+
+      <button class="request-btn" onClick="mpc_computation2();" id="addButton">
+        发起计算
+      </button>
+      <div class="error-msg" id="errorMsg" style="display:none"></div>
+
+      <p>
+        <progress id="progressBar" max="100" value="0"></progress>
+      </p>
+    </div>
+  </div>
+  <style >
+      .blue-button {
+    background-color: blue;
+    color: white;
+    border-radius: 10px; /* 设置圆角半径 */
+    padding: 10px 20px; /* 设置内边距 */
+  }
+
+  .request-btn {
+    background-color: blue;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 20px;
+    margin-top: 40px;
+
+  }
+
+  .sidenav {
+    height: 100%;
+    width: 300px; /* 增加宽度 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #f1f1f1;
+    overflow-x: hidden;
+    padding-top: 20px;
+  }
+  
+  .sidenav button {
+    display: block;
+    font-size: 16px;
+    border: none;
+    background-color: inherit;
+    color: black;
+    padding: 12px 16px;
+    margin: 10px auto; /* 设置左右 margin 为 auto 实现居中 */
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    width: 50%; /* 让按钮宽度为容器宽度的一半 */
+  }
+  
+  /* 当按钮被 hover 时改变背景色 */
+  .sidenav button:hover {
+    background-color: blue; /* 改变背景色为蓝色 */
+    color: white; /* 同时改变字体颜色为白色以突出显示 */
+  }
+  .sidenav #new-computation {
+  background-color: blue;
+  color: white;
+}
+
+  </style>

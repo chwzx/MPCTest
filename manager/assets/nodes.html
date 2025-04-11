@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>MPC service</title>
+  <link rel="stylesheet" href="./style/index.css">
+</head>
+
+<!-- Code for wasm -->
+
+<script src="wasm_exec.js"></script>
+<script type="text/javascript" src="load_wasm.js"></script>
+
+<!-- Load custom js functions -->
+<script type="text/javascript" src="mpc_utils.js"></script>
+<script type="text/javascript" src="dataset_utils.js"></script>
+<script type="text/javascript" src="header.js"></script>
+
+<div class="sidenav">
+  <h3 style="width:100%; text-align:center; font-weight: bold; font-size: 28px; color: grey;">隐私数据共享系统</h3>
+  <button id="new-computation" style="border-radius: 10px;">发起计算</button>
+  <script>
+    var computeButton = document.getElementById('new-computation');
+  computeButton.addEventListener('click', () => {
+    location.assign('compute.html');
+  });
+</script>
+  <button id="history-info" style="border-radius: 10px;">历史计算</button>
+  <script>
+    var historyInfoButton = document.getElementById('history-info');
+  historyInfoButton.addEventListener('click', () => {
+    location.assign('history.html');
+  });
+</script>
+  <button id="node-info" style="border-radius: 10px;">节点信息</button>
+  <button id="dataset-info" style="border-radius: 10px;">数据集信息</button>
+  <script>
+    var datasetInfoButton = document.getElementById('dataset-info');
+  datasetInfoButton.addEventListener('click', () => {
+    location.assign('datasets.html');
+  });
+  </script>
+</div>
+
+<!--<div style="margin-top: 20px; font-size: 24px; font-weight: bold; text-align: center; margin-left:-1000px; font-family: SimSun;">可共享节点信息</div> -->
+<div style="position: relative; top: 100px;left: 350px;">
+<table class="datasets">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>&nbsp;&nbsp;&nbsp;&nbsp;名称</th>
+      <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IP</th>
+      <th>端口</th>
+      <th>&nbsp;&nbsp;公钥</th>
+      <th>&nbsp;&nbsp;证书</th>
+      <th>&nbsp;&nbsp;签名</th>
+    </tr>
+  </thead>
+  <tbody id="nodes">
+  </tbody>
+</table>
+<script> load_nodes_table() </script>
+</div>
+
+<style type="text/css">
+
+.datasets th {
+  text-align: center;
+}
+.sidenav {
+  height: 100%;
+  width: 300px; /* 增加宽度 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #f1f1f1;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.sidenav button {
+  display: block;
+  font-size: 16px;
+  border: none;
+  background-color: inherit;
+  color: black;
+  padding: 12px 16px;
+  margin: 10px auto; /* 设置左右 margin 为 auto 实现居中 */
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  width: 50%; /* 让按钮宽度为容器宽度的一半 */
+}
+
+/* 当按钮被 hover 时改变背景色 */
+.sidenav button:hover {
+  background-color: blue; /* 改变背景色为蓝色 */
+  color: white; /* 同时改变字体颜色为白色以突出显示 */
+}
+.sidenav #node-info {
+  background-color: blue;
+  color: white;
+}
+</style>
+
+<script>
+
+
+  var datasetInfoButton = document.getElementById('dataset-info');
+datasetInfoButton.addEventListener('click', () => {
+  location.assign('datasets.html');
+});
+</script>
+<!-- 在页面左侧的导航栏 -->
+
+<!-- 
+
+<body>
+  <div class="page-wrap">
+    <div class="header-outer-wrap">
+      <div class="header-wrap">
+        <h1>Multi-party computation service</h1>
+      </div>
+    </div>
+    <div class="caption-text-wrap">
+      <h2> MPC nodes connected to the network </h2>
+
+      <table class="datasets">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Nodes</th>
+            <th>Address</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody id="nodes">
+        </tbody>
+      </table>
+      <script> load_nodes_table() </script>
+
+
+    </div>
+    <div class="node-outer-wrap">
+
+      <div class="node-wrap">
+        <h2> Datasets </h2>
+
+        <h4 class="available-detaset"> Available datasets </h4>
+        <table class="datasets">
+          <thead>
+            <tr>
+              <th> </th>
+              <th>Dataset</th>
+              <th>Data entries (size)</th>
+              <th>Shared with</th>
+            </tr>
+          </thead>
+          <tbody id="datasets">
+          </tbody>
+        </table>
+
+        <script> load_datasets_table() </script>
+
+        <div class="add-detaset-wrap">
+          <h4> Add a dataset </h4>
+          <p class="dataset-description">
+            To add a dataset join as a dataset server or provide a downloadable link. For the latter, select 3 MPC
+            nodes
+            that
+            you want to share your data with, and then select a CSV file to encrypt:
+
+          </p>
+          <div class="file-select-wrap">
+            <input type="file" id="fileToLoad">
+            <div class="under-line"></div>
+
+
+            <div class="enc-btn-wrap">
+              <button class="enc-button" onclick="loadAndSplit()">Encrypt
+                Selected File</button>
+
+            </div>
+          </div>
+
+          <div class="upload-wrap">
+            <p>Upload the dataset to your cloud storage and provide a link </p>
+
+            <div class="detaset-wrap">
+              <p class="dataset-name"> Dataset name:</p> <input type="text" id="dataset_name" name="dataset_name">
+            </div>
+            <div class="detaset-wrap">
+              <p class="dataset-name">Dataset link:</p> <input type="text" id="dataset_link" name="dataset_link">
+            </div>
+            <p>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="request-mpc-wrap">
+      <h2> Request an MPC computation </h2>
+      <p>
+        To initiate a computation select three MPC nodes, (possibly multiple) datasets, a desired function, and
+        click
+        the following button.
+      </p>
+
+
+      <div class="nodes-select-outer-wrap">
+        <div class="node-select-wrap">
+          <input type="checkbox" class="function" id="avg" name="contact" value="avg">
+          <label for="avg">Average</label>
+        </div>
+
+        <div class="node-select-wrap">
+
+          <input type="checkbox" class="function" id="stats" name="contact" value="stats">
+          <label for="stats">Statistics</label>
+
+        </div>
+
+        <div class="node-select-wrap">
+
+          <input type="checkbox" class="function" id="k-means" name="contact" value="k-means">
+          <label for="k-means">k-means</label>
+
+          (Number of clusters: <input class="num_clusters" type="text" id="num_clusters" name="num_clusters">)
+        </div>
+
+        <button class="request-btn" onClick="mpc_computation();" id="addButton">
+          Request the MPC computation.
+        </button>
+        <div class="error-msg" id="errorMsg" style="display:none"></div>
+
+        <p>
+          <progress id="progressBar" max="100" value="0"></progress>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+-->
