@@ -22,4 +22,4 @@ ENV PATH="/root/go/bin:${PATH}"
 ENV GOPATH="/root/go"
 
 # Start the MPC server
-ENTRYPOINT ["MPCService"]
+ENTRYPOINT ["MPCTest"]

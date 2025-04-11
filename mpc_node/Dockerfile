@@ -81,7 +81,7 @@ RUN wget --no-check-certificate https://dl.google.com/go/go1.17.3.linux-amd64.ta
 RUN tar -C /usr/local -xzf go1.17.3.linux-amd64.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
-## Install MPCService
+## Install MPCTest
 ADD . / /root/go/src/github.com/chwzx/MPCTest/
 WORKDIR /root/go/src/github.com/chwzx/MPCTest
 RUN go env -w GO111MODULE=on
@@ -107,11 +107,11 @@ RUN rm /SCALE-MAMBA/src/Input_Output/Input_Output_Test.h
 
 RUN cp computation/scale_files/input_output.py /SCALE-MAMBA/Compiler/input_output.py
 RUN cp computation/scale_files/lin_alg.py /SCALE-MAMBA/Compiler/lin_alg.py
-RUN cp -r computation/scale_files/MPCService /SCALE-MAMBA/Programs
+RUN cp -r computation/scale_files/MPCTest /SCALE-MAMBA/Programs
 RUN cp -r computation/scale_files/Input /SCALE-MAMBA/Input
 WORKDIR /SCALE-MAMBA
 RUN make progs
 
 WORKDIR /root/go/src/github.com/chwzx/MPCTest
 # Start the MPC server
-ENTRYPOINT ["MPCService"]
+ENTRYPOINT ["MPCTest"]

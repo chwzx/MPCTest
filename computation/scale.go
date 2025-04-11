@@ -19,7 +19,7 @@ func InputPrepare(nodeId int, shares, privateIn []*big.Int, sm string) error {
 	if err != nil {
 		return err
 	}
-
+	// fff
 	for j := 0; j < len(shares); j++ {
 		_, err = f.WriteString(strconv.Itoa(nodeId) + " " + shares[j].String() + "\n")
 		if err != nil {
@@ -109,7 +109,7 @@ func RunScale(nodeId int, funcName string, paramsMap map[string]string, mpcPorts
 	}
 
 	// start SCALE node that will prepare itself for future computation
-	cmdStr := "./Player.x " + strconv.Itoa(nodeId) + " -dOT -pns " + mpcPorts + " Programs/MPCService/node" + strconv.Itoa(nodeId)
+	cmdStr := "./Player.x " + strconv.Itoa(nodeId) + " -dOT -pns " + mpcPorts + " Programs/MPCTest/node" + strconv.Itoa(nodeId)
 
 	cmd := exec.Command("bash", "-c", cmdStr)
 	cmd.Dir = sm
