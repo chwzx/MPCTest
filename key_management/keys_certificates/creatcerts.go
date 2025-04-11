@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-var nextNodeNum = 2
+var nextNodeNum = 3
 
 func main() {
 	// 读取根证书文件
