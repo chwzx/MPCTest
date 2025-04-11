@@ -33,7 +33,7 @@ RUN make && make check && make install
 
 # install OpenSSL 1.1.0
 WORKDIR /local
-RUN wget https://www.openssl.org/source/old/1.1.1/openssl-1.1.1e.tar.gz
+RUN wget https://www.openssl.org/source/openssl-1.1.1e.tar.gz
 RUN tar -xf openssl-1.1.1e.tar.gz
 WORKDIR /local/openssl-1.1.1e
 RUN ./config --prefix="/local/openssl"

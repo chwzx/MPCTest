@@ -44,14 +44,14 @@ func PrepareMambaProgram(nodeId int, funcName string, paramsMap map[string]strin
 
 	// remove previous compiled program if there
 	log.Debug("Cleaning files.")
-	cmd := exec.Command("rm", "Programs/MPCService/node"+strconv.Itoa(nodeId)+
+	cmd := exec.Command("rm", "Programs/MPCTest/node"+strconv.Itoa(nodeId)+
 		"/node"+strconv.Itoa(nodeId)+".mpc")
 	cmd.Dir = sm
 	_ = cmd.Run()
 
 	// prepare the MAMBA program in the proper folder
-	cmd = exec.Command("/bin/sh", "-c", "cp  Programs/MPCService/functions/"+funcName+
-		".mpc Programs/MPCService/node"+strconv.Itoa(nodeId)+"/node"+strconv.Itoa(nodeId)+"new.mpc")
+	cmd = exec.Command("/bin/sh", "-c", "cp  Programs/MPCTest/functions/"+funcName+
+		".mpc Programs/MPCTest/node"+strconv.Itoa(nodeId)+"/node"+strconv.Itoa(nodeId)+"new.mpc")
 	cmd.Dir = sm
 	if log.GetLevel() == log.DebugLevel {
 		cmd.Stdout = os.Stdout
@@ -67,8 +67,8 @@ func PrepareMambaProgram(nodeId int, funcName string, paramsMap map[string]strin
 	s := "new"
 	for key, val := range paramsMap {
 		cmd = exec.Command("/bin/sh", "-c", "sed 's/"+key+"/"+val+
-			"/g' Programs/MPCService/node"+
-			strconv.Itoa(nodeId)+"/node"+strconv.Itoa(nodeId)+s+".mpc >> Programs/MPCService/node"+
+			"/g' Programs/MPCTest/node"+
+			strconv.Itoa(nodeId)+"/node"+strconv.Itoa(nodeId)+s+".mpc >> Programs/MPCTest/node"+
 			strconv.Itoa(nodeId)+"/node"+strconv.Itoa(nodeId)+s+"new"+".mpc")
 		cmd.Dir = sm
 		if log.GetLevel() == log.DebugLevel {
@@ -80,7 +80,7 @@ func PrepareMambaProgram(nodeId int, funcName string, paramsMap map[string]strin
 			return err
 		}
 
-		cmd = exec.Command("rm", "Programs/MPCService/node"+strconv.Itoa(nodeId)+
+		cmd = exec.Command("rm", "Programs/MPCTest/node"+strconv.Itoa(nodeId)+
 			"/node"+strconv.Itoa(nodeId)+s+".mpc")
 		cmd.Dir = sm
 		_ = cmd.Run()
@@ -89,8 +89,8 @@ func PrepareMambaProgram(nodeId int, funcName string, paramsMap map[string]strin
 	}
 
 	log.Debug("Setting the file.")
-	cmd = exec.Command("/bin/sh", "-c", "cp Programs/MPCService/node"+
-		strconv.Itoa(nodeId)+"/node"+strconv.Itoa(nodeId)+s+".mpc  Programs/MPCService/node"+
+	cmd = exec.Command("/bin/sh", "-c", "cp Programs/MPCTest/node"+
+		strconv.Itoa(nodeId)+"/node"+strconv.Itoa(nodeId)+s+".mpc  Programs/MPCTest/node"+
 		strconv.Itoa(nodeId)+"/node"+strconv.Itoa(nodeId)+".mpc")
 	cmd.Dir = sm
 	err = cmd.Run()
@@ -98,7 +98,7 @@ func PrepareMambaProgram(nodeId int, funcName string, paramsMap map[string]strin
 		return err
 	}
 
-	cmd = exec.Command("rm", "Programs/MPCService/node"+strconv.Itoa(nodeId)+
+	cmd = exec.Command("rm", "Programs/MPCTest/node"+strconv.Itoa(nodeId)+
 		"/node"+strconv.Itoa(nodeId)+s+".mpc")
 	cmd.Dir = sm
 	err = cmd.Run()
@@ -108,7 +108,7 @@ func PrepareMambaProgram(nodeId int, funcName string, paramsMap map[string]strin
 
 	// compile the MAMBA program
 	log.Debug("Compiling.")
-	cmd = exec.Command("./compile.sh", "Programs/MPCService/node"+strconv.Itoa(nodeId))
+	cmd = exec.Command("./compile.sh", "Programs/MPCTest/node"+strconv.Itoa(nodeId))
 	cmd.Dir = sm
 	if log.GetLevel() == log.DebugLevel {
 		cmd.Stdout = os.Stdout
