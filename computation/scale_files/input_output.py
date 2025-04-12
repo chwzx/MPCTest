@@ -74,5 +74,3 @@ def output_sfix_matrix(res):
     @for_range(len(res))
     def _(j):
         output_sfix_array(res[j])
-
-

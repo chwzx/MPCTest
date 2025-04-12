@@ -29,7 +29,7 @@ services:
       context: ..
       dockerfile: ./mpc_node/Dockerfile
 
-    command: [ "mpc_node", "start", "-name", "heping", "-scalePort", "4102", "-logLevel", "info",
+    command: [ "mpc_node", "start", "-name", "Berlin_node", "-scalePort", "4102", "-logLevel", "info",
                "-manAddr", "manager_test:4101", "-nodeAddr", "mpc_node_test1"]
     restart: always
     depends_on:
@@ -40,7 +40,7 @@ services:
     build:
       context: ..
       dockerfile: ./mpc_node/Dockerfile
-    command: [ "mpc_node", "start", "-name", "hunnan", "-scalePort", "4103", "-logLevel", "info",
+    command: [ "mpc_node", "start", "-name", "Paris_node", "-scalePort", "4103", "-logLevel", "info",
                "-manAddr", "manager_test:4101", "-nodeAddr", "mpc_node_test2"]
     restart: always
     depends_on:
@@ -51,7 +51,7 @@ services:
       context: ..
       dockerfile: ./mpc_node/Dockerfile
 
-    command: [ "mpc_node", "start", "-name", "sujiatun", "-scalePort", "4104", "-logLevel", "info",
+    command: [ "mpc_node", "start", "-name", "Ljubljana_node", "-scalePort", "4104", "-logLevel", "info",
                "-manAddr", "manager_test:4101", "-nodeAddr", "mpc_node_test3"]
     restart: always
     depends_on:
@@ -62,7 +62,7 @@ services:
       context: ..
       dockerfile: ./mpc_node/Dockerfile
 
-    command: [ "mpc_node", "start", "-name", "Ljubljana_node", "-scalePort", "4105", "-logLevel", "info",
+    command: [ "mpc_node", "start", "-name", "node_1", "-scalePort", "4105", "-logLevel", "info",
                "-manAddr", "manager_test:4101", "-nodeAddr", "mpc_node_test4"]
     restart: always
     depends_on:
@@ -74,7 +74,7 @@ services:
       context: ..
       dockerfile: ./mpc_node/Dockerfile
 
-    command: [ "mpc_node", "start", "-name", "Bristol_node", "-scalePort", "4106", "-logLevel", "info",
+    command: [ "mpc_node", "start", "-name", "node_2", "-scalePort", "4106", "-logLevel", "info",
                "-manAddr", "manager_test:4101", "-nodeAddr", "mpc_node_test5"]
     restart: always
     depends_on:

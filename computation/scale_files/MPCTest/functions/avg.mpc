@@ -2,23 +2,52 @@ from Compiler import input_output
 from Compiler import lin_alg
 
 l = LEN
-dim = [LEN / COLS, COLS]
+dim = [LEN // COLS, COLS]  # 使用整数除法保证维度正确
 
 def average(M):
     cols = len(M[0])
     rows = len(M)
-    avg = lin_alg.constant_vector(cols, 0)
-    @for_range(rows)
-    def f(i):
-        @for_range(cols)
-        def g(j):
-            avg[j] = avg[j] + M[i][j]
-
+    
+    # 使用sint类型进行累加防止溢出
+    sum_sint = sint.Array(cols)
     @for_range(cols)
-    def g(j):
-        avg[j] = avg[j] / rows
+    def _(j):
+        sum_sint[j] = sint(0)
+    
+    # 逐行累加
+    @for_range(rows)
+    def _(i):
+        @for_range(cols)
+        def _(j):
+            sum_sint[j] += M[i][j].v  # 直接访问sfix的底层sint值
+    
+    # 转换为sfix并计算平均值
+    avg = sfix.Array(cols)
+    @for_range(cols)
+    def _(j):
+        # 安全除法（sint / 公开整数）
+        avg_val = sfix(0)
+        avg_val.v = sum_sint[j] / rows  # 直接操作sfix的底层sint值
+        avg[j] = avg_val
+    
     return avg
 
-X = input_output.load_sfix_matrix(dim[0], dim[1])
+# 输入矩阵尺寸计算逻辑
+actual_dim = [None, None]
+@function_block
+def calculate_dimensions():
+    global actual_dim
+    actual_dim[0] = l // COLS
+    actual_dim[1] = COLS
+    # 验证尺寸合法性
+    if_then(actual_dim[0] * actual_dim[1] != l)
+    print_ln("Error: LEN must be divisible by COLS")
+    crash()
+    end_if()
+
+calculate_dimensions()
+
+# 主流程
+X = input_output.load_sfix_matrix(actual_dim[0], actual_dim[1])
 res = average(X)
 input_output.output_sfix_array(res)
