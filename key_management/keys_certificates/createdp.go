@@ -53,19 +53,17 @@ func main() {
 
 	// 定义证书模板
 	template := x509.Certificate{
-		SerialNumber: big.NewInt(0).SetBytes([]byte{0x7e, 0x8f, 0x11, 0xb6, 0xe9, 0xf9, 0x3c, 0x57, 0x03, 0x8c, 0x27, 0x6a, 0xda, 0xa9, 0x1e, 0x59}),
+		
+		SerialNumber: big.NewInt(0).SetBytes([]byte{
+			0xfd, 0x7b, 0xe7, 0xf8, 0xbd, 0xf7, 0xbc, 0xd2,
+			0x5a, 0xe8, 0x59, 0xa4, 0x85, 0x90, 0x7a,
+		}),
 		Subject: pkix.Name{
-			CommonName: fmt.Sprintf("manager"),
+			CommonName: fmt.Sprintf("data_provider1"),
 		},
 		NotBefore: time.Now(),
 		NotAfter:  time.Now().AddDate(10, 0, 0),
 	
-		// 使用 localhost 和 127.0.0.1 作为主机名和 IP 地址
-		DNSNames: []string{
-			"localhost",        // DNS Name=localhost
-			"manager_test",     // DNS Name=manager_test
-			"kraken.xlab.si",   // DNS Name=kraken.xlab.si
-		},
 		// IPAddresses: []net.IP{net.ParseIP("127.0.0.1")},
 		
 		// 增强型密钥用法
@@ -75,7 +73,11 @@ func main() {
 		},
 		
 		// 使用者密钥标识符
-		SubjectKeyId: []byte{0x2c, 0xba, 0x29, 0x54, 0xc8, 0x38, 0x49, 0xc2, 0x3c, 0xce, 0xb1, 0x3d, 0x25, 0x5b, 0x7d, 0x66, 0x97, 0xc1, 0xea, 0x52},
+		SubjectKeyId: []byte{
+			0xcd, 0xc6, 0x4f, 0xbe, 0x28, 0x86, 0x57, 0x4a,
+			0xbf, 0x5a, 0x08, 0xe1, 0x2c, 0xaa, 0xd0, 0x42,
+			0x69, 0x89, 0x63, 0xe3,
+		},
 		
 		// 密钥用法
 		KeyUsage: x509.KeyUsageDigitalSignature | 
@@ -93,7 +95,7 @@ func main() {
 	}
 
 	// 将证书和私钥写入文件
-	certOut, err := os.Create(fmt.Sprintf("Manager.crt"))
+	certOut, err := os.Create(fmt.Sprintf("Data_provider1.crt"))
 	if err != nil {
 		log.Fatalf("Failed to open node.crt for writing: %v", err)
 	}
@@ -101,7 +103,7 @@ func main() {
 
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: cert})
 
-	keyOut, err := os.OpenFile(fmt.Sprintf("Manager.key"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyOut, err := os.OpenFile(fmt.Sprintf("Data_provider1.key"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Fatalf("Failed to open node.key for writing: %v", err)
 	}
