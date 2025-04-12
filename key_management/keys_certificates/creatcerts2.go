@@ -53,16 +53,31 @@ func main() {
 
 	// 定义证书模板
 	template := x509.Certificate{
-		SerialNumber: big.NewInt(int64(nextNodeNum)),
+		SerialNumber: big.NewInt(0).SetBytes([]byte{0x7e, 0x8f, 0x11, 0xb6, 0xe9, 0xf9, 0x3c, 0x57, 0x03, 0x8c, 0x27, 0x6a, 0xda, 0xa9, 0x1e, 0x59}),
 		Subject: pkix.Name{
 			CommonName: fmt.Sprintf("manager"),
 		},
 		NotBefore: time.Now(),
 		NotAfter:  time.Now().AddDate(10, 0, 0),
-
+	
 		// 使用 localhost 和 127.0.0.1 作为主机名和 IP 地址
 		DNSNames:    []string{"localhost"},
 		IPAddresses: []net.IP{net.ParseIP("127.0.0.1")},
+		
+				// 增强型密钥用法
+		ExtKeyUsage: []x509.ExtKeyUsage{
+			x509.ExtKeyUsageServerAuth, // 服务器身份验证 (1.3.6.1.5.5.7.3.1)
+			x509.ExtKeyUsageClientAuth, // 客户端身份验证 (1.3.6.1.5.5.7.3.2)
+		},
+		
+		// 使用者密钥标识符
+		SubjectKeyId: []byte{0x2c, 0xba, 0x29, 0x54, 0xc8, 0x38, 0x49, 0xc2, 0x3c, 0xce, 0xb1, 0x3d, 0x25, 0x5b, 0x7d, 0x66, 0x97, 0xc1, 0xea, 0x52},
+		
+		// 密钥用法
+		KeyUsage: x509.KeyUsageDigitalSignature | 
+				  x509.KeyUsageKeyEncipherment | 
+				  x509.KeyUsageDataEncipherment | 
+				  x509.KeyUsageKeyAgreement, // 0xb8
 	}
 
 	nextNodeNum++
