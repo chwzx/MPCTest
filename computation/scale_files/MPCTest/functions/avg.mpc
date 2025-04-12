@@ -1,40 +1,24 @@
 from Compiler import input_output
 from Compiler import lin_alg
-from Compiler.types import sfix
 
 l = LEN
 dim = [LEN / COLS, COLS]
 
-CHUNK_SIZE = 100  # 每次处理100行，可根据需要调整
-NUM_CHUNKS = LEN // CHUNK_SIZE
-dim = [LEN, COLS]
-
-def average_chunked(M):
+def average(M):
     cols = len(M[0])
     rows = len(M)
     avg = lin_alg.constant_vector(cols, 0)
-
-    @for_range(NUM_CHUNKS)
-    def chunk_loop(c):
-        partial = lin_alg.constant_vector(cols, 0)
-        @for_range(CHUNK_SIZE)
-        def row_loop(i):
-            row = c * CHUNK_SIZE + i
-            @for_range(cols)
-            def col_loop(j):
-                partial[j] = partial[j] + M[row][j]
-        
+    @for_range(rows)
+    def f(i):
         @for_range(cols)
-        def scale_loop(j):
-            avg[j] = avg[j] + partial[j] / rows
+        def g(j):
+            avg[j] = avg[j] + M[i][j]
 
+    @for_range(cols)
+    def g(j):
+        avg[j] = avg[j] / rows
     return avg
 
-# 加载输入数据（私密定点数）
 X = input_output.load_sfix_matrix(dim[0], dim[1])
-
-# 计算平均
-res = average_chunked(X)
-
-# 输出平均值向量
+res = average(X)
 input_output.output_sfix_array(res)
