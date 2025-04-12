@@ -6,7 +6,7 @@ import (
 )
 
 func FloatToFixInt(x float64) (int64, error) {
-	k := 41
+	k := 61
 	f := 20
 
 	if math.Abs(x) >= math.Pow(2, float64(k-f-1)) {
