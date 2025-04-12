@@ -1,53 +1,40 @@
 from Compiler import input_output
 from Compiler import lin_alg
+from Compiler.types import sfix
 
 l = LEN
-dim = [LEN // COLS, COLS]  # 使用整数除法保证维度正确
+dim = [LEN / COLS, COLS]
 
-def average(M):
+CHUNK_SIZE = 100  # 每次处理100行，可根据需要调整
+NUM_CHUNKS = LEN // CHUNK_SIZE
+dim = [LEN, COLS]
+
+def average_chunked(M):
     cols = len(M[0])
     rows = len(M)
-    
-    # 使用sint类型进行累加防止溢出
-    sum_sint = sint.Array(cols)
-    @for_range(cols)
-    def _(j):
-        sum_sint[j] = sint(0)
-    
-    # 逐行累加
-    @for_range(rows)
-    def _(i):
+    avg = lin_alg.constant_vector(cols, 0)
+
+    @for_range(NUM_CHUNKS)
+    def chunk_loop(c):
+        partial = lin_alg.constant_vector(cols, 0)
+        @for_range(CHUNK_SIZE)
+        def row_loop(i):
+            row = c * CHUNK_SIZE + i
+            @for_range(cols)
+            def col_loop(j):
+                partial[j] = partial[j] + M[row][j]
+        
         @for_range(cols)
-        def _(j):
-            sum_sint[j] += M[i][j].v  # 直接访问sfix的底层sint值
-    
-    # 转换为sfix并计算平均值
-    avg = sfix.Array(cols)
-    @for_range(cols)
-    def _(j):
-        # 安全除法（sint / 公开整数）
-        avg_val = sfix(0)
-        avg_val.v = sum_sint[j] / rows  # 直接操作sfix的底层sint值
-        avg[j] = avg_val
-    
+        def scale_loop(j):
+            avg[j] = avg[j] + partial[j] / rows
+
     return avg
 
-# 输入矩阵尺寸计算逻辑
-actual_dim = [None, None]
-@function_block
-def calculate_dimensions():
-    global actual_dim
-    actual_dim[0] = l // COLS
-    actual_dim[1] = COLS
-    # 验证尺寸合法性
-    if_then(actual_dim[0] * actual_dim[1] != l)
-    print_ln("Error: LEN must be divisible by COLS")
-    crash()
-    end_if()
+# 加载输入数据（私密定点数）
+X = input_output.load_sfix_matrix(dim[0], dim[1])
 
-calculate_dimensions()
+# 计算平均
+res = average_chunked(X)
 
-# 主流程
-X = input_output.load_sfix_matrix(actual_dim[0], actual_dim[1])
-res = average(X)
+# 输出平均值向量
 input_output.output_sfix_array(res)

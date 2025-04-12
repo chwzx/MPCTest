@@ -6,7 +6,6 @@ services:
     build:
       context: ..
       dockerfile: ./manager/Dockerfile
-
     command: ["manager", "start", "-guiPort", "4100", "-managerPort", "4101", "-logLevel", "info"]
     ports:
       - "4100:4100"
@@ -17,18 +16,16 @@ services:
     build:
       context: ..
       dockerfile: ./data_provider/Dockerfile
-
     command: ["data_provider", "start", "-name", "Data_provider1", "-logLevel", "info", "-manAddr", "manager_test:4101"]
     restart: always
     depends_on:
       - manager_test
 
   mpc_node_test1:
-    container_name: mpc_node_test1
+    container_name: heping
     build:
       context: ..
       dockerfile: ./mpc_node/Dockerfile
-
     command: [ "mpc_node", "start", "-name", "heping", "-scalePort", "4102", "-logLevel", "info",
                "-manAddr", "manager_test:4101", "-nodeAddr", "mpc_node_test1"]
     restart: always
@@ -36,7 +33,7 @@ services:
       - manager_test
 
   mpc_node_test2:
-    container_name: mpc_node_test2
+    container_name: hunnan
     build:
       context: ..
       dockerfile: ./mpc_node/Dockerfile
@@ -45,23 +42,23 @@ services:
     restart: always
     depends_on:
       - manager_test
+
   mpc_node_test3:
-    container_name: mpc_node_test3
+    container_name: sujiatun
     build:
       context: ..
       dockerfile: ./mpc_node/Dockerfile
-
     command: [ "mpc_node", "start", "-name", "sujiatun", "-scalePort", "4104", "-logLevel", "info",
                "-manAddr", "manager_test:4101", "-nodeAddr", "mpc_node_test3"]
     restart: always
     depends_on:
       - manager_test
+
   mpc_node_test4:
-    container_name: mpc_node_test4
+    container_name: Ljubljana_node
     build:
       context: ..
       dockerfile: ./mpc_node/Dockerfile
-
     command: [ "mpc_node", "start", "-name", "Ljubljana_node", "-scalePort", "4105", "-logLevel", "info",
                "-manAddr", "manager_test:4101", "-nodeAddr", "mpc_node_test4"]
     restart: always
@@ -69,11 +66,10 @@ services:
       - manager_test
       
   mpc_node_test5:
-    container_name: mpc_node_test5
+    container_name: Bristol_node
     build:
       context: ..
       dockerfile: ./mpc_node/Dockerfile
-
     command: [ "mpc_node", "start", "-name", "Bristol_node", "-scalePort", "4106", "-logLevel", "info",
                "-manAddr", "manager_test:4101", "-nodeAddr", "mpc_node_test5"]
     restart: always
