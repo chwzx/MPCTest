@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-var nextNodeNum = 3
+var nextNodeNum = 1
 
 func main() {
 	// 读取根证书文件
@@ -58,7 +58,7 @@ func main() {
 			CommonName: fmt.Sprintf("node_%d", nextNodeNum),
 		},
 		NotBefore: time.Now(),
-		NotAfter:  time.Now().AddDate(10, 0, 0),
+		NotAfter:  time.Now().AddDate(1, 0, 0),
 
 		// 使用 localhost 和 127.0.0.1 作为主机名和 IP 地址
 		DNSNames:    []string{"localhost"},
