@@ -1,38 +1,32 @@
 from Compiler import input_output
+from Compiler import mpc_math
 from Compiler import lin_alg
 
 l = LEN
 dim = [LEN / COLS, COLS]
 
-def mean(M):
-    cols = len(M[0])
-    rows = len(M)
-    avg = lin_alg.constant_vector(cols, 0)
-    @for_range(rows)
-    def f(i):
-        @for_range(cols)
-        def g(j):
-            avg[j] = avg[j] + M[i][j]
-    @for_range(cols)
+def compute_mean(mat):
+    mean_vals = lin_alg.vector(dim[1])
+    @for_range(dim[1])
     def g(j):
-        avg[j] = avg[j] / rows
-    return avg
+        @for_range(dim[0])
+        def f(i):
+            mean_vals[j] = mean_vals[j] + mat[i][j]
+        mean_vals[j] = mean_vals[j] / dim[0]
+    return mean_vals
 
-def variance(M):
-    cols = len(M[0])
-    rows = len(M)
-    mean_vec = mean(M)
-    var = lin_alg.constant_vector(cols, 0)
-    @for_range(rows)
-    def f(i):
-        @for_range(cols)
-        def g(j):
-            var[j] = var[j] + (M[i][j]-mean_vec[j])**2
-    @for_range(cols)
+def compute_std(mat, mean_vals):
+    std_vals = lin_alg.vector(dim[1])
+    @for_range(dim[1])
     def g(j):
-        var[j] = var[j] / rows
-    return var
+        @for_range(dim[0])
+        def f(i):
+            std_vals[j] = std_vals[j] + (mat[i][j] - mean_vals[j]) ** 2
+        std_vals[j] = std_vals[j] / dim[0]
+        std_vals[j] = mpc_math.sqrt(std_vals[j])
+    return std_vals
 
 X = input_output.load_sfix_matrix(dim[0], dim[1])
-res = variance(X)
-input_output.output_sfix_array(res)
+mean_vals = compute_mean(X)
+std_vals = compute_std(X, mean_vals)
+input_output.output_sfix_vector(std_vals)

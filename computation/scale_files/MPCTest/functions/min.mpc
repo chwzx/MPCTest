@@ -1,34 +1,21 @@
 from Compiler import input_output
-
-# Set LEN and COLS values
-LEN = 10
-COLS = 2
+from Compiler import lin_alg
+from Compiler.program import for_range
 
 l = LEN
 dim = [LEN // COLS, COLS]
 
-def minval(M):
-    cols = len(M[0])
-    rows = len(M)
-    # Initialize m array with the first row of M
-    m = [x for x in M[0]]
-    
-    @for_range(rows)
-    def f(i):
-        @for_range(cols)
-        def g(j):
-            # Compare current element with corresponding element in m
-            c = m[j] > M[i][j]
-            # Replace element in m with the smaller value
-            m[j] = m[j] * (1 - c) + M[i][j] * c
+def compute_min(mat):
+    min_vals = lin_alg.vector(dim[1])
+    @for_range(dim[1])
+    def g(j):
+        min_vals[j] = mat[0][j]
+        @for_range(1, dim[0])
+        def f(i):
+            c = min_vals[j] < mat[i][j]
+            min_vals[j] = min_vals[j] * c + mat[i][j] * (1 - c)
+    return min_vals
 
-    return m
-
-# Load input matrix
 X = input_output.load_sfix_matrix(dim[0], dim[1])
-
-# Find minimum value using minval function
-res = minval(X)
-
-# Output resulting array
-input_output.output_sfix_array(res)
+min_vals = compute_min(X)
+input_output.output_sfix_vector(min_vals)

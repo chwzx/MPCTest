@@ -9,7 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var programs = []string{"avg", "max", "stats", "linear_regression", "k-means"}
+var programs = []string{"avg", "max", "min", "stats", "linear_regression", "k-means", "medium", "quartile", }
 var allowedParams = map[string]bool{"COLS": true, "LEN": true, "NUM_CLUSTERS": true}
 
 func PrepareMambaProgram(nodeId int, funcName string, paramsMap map[string]string, sm string) error {

@@ -1,26 +1,20 @@
 from Compiler import input_output
 from Compiler import lin_alg
-from Compiler.types import sfix
+from Compiler.program import for_range
 
 l = LEN
-dim = [LEN // COLS, COLS]  # 整数除法
+dim = [LEN / COLS, COLS]  # 整数除法
 
-def average(M):
-    cols = len(M[0])
-    rows = len(M)
-    avg = lin_alg.constant_vector(cols, 0)
-    @for_range(rows)
-    def f(i):
-        @for_range(cols)
-        def g(j):
-            avg[j] = avg[j] + M[i][j]
-
-    srows = sfix(rows)  # 转为 sfix 类型，防止除法出错
-    @for_range(cols)
+def average(mat):
+    mean_vals = lin_alg.vector(dim[1])
+    @for_range(dim[1])
     def g(j):
-        avg[j] = avg[j] / srows
-    return avg
+        @for_range(dim[0])
+        def f(i):
+            mean_vals[j] = mean_vals[j] + mat[i][j]
+        mean_vals[j] = mean_vals[j] / dim[0]
+    return mean_vals
 
 X = input_output.load_sfix_matrix(dim[0], dim[1])
-res = average(X)
-input_output.output_sfix_array(res)
+mean_vals = average(X)
+input_output.output_sfix_vector(mean_vals)
